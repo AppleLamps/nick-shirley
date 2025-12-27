@@ -34,11 +34,11 @@ export default function ArticleCard({
 
   if (featured) {
     return (
-      <article className="article-card group">
+      <article className="article-card group mb-12">
         <Link href={`/articles/${slug}`}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
             {featuredImage && (
-              <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
+              <div className="md:col-span-8 relative aspect-[16/9] overflow-hidden bg-gray-100">
                 <Image
                   src={featuredImage}
                   alt={title}
@@ -47,21 +47,21 @@ export default function ArticleCard({
                 />
               </div>
             )}
-            <div className="flex flex-col justify-center">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500">
+            <div className={`flex flex-col justify-center ${featuredImage ? 'md:col-span-4' : 'md:col-span-12'}`}>
+              <div className="flex items-center gap-3 mb-4">
+                <span className="font-sans text-sm font-bold uppercase tracking-wider text-gray-500">
                   {getCategoryLabel()}
                 </span>
                 <span className="text-gray-300">|</span>
-                <time className="font-sans text-xs text-gray-500">
+                <time className="font-sans text-sm text-gray-500">
                   {formattedDate}
                 </time>
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 group-hover:underline">
+              <h2 className="text-4xl md:text-6xl font-bold mb-6 group-hover:underline leading-tight font-headline">
                 {title}
               </h2>
               {excerpt && (
-                <p className="text-gray-600 text-lg leading-relaxed">
+                <p className="text-gray-600 text-xl md:text-2xl leading-relaxed font-serif">
                   {excerpt}
                 </p>
               )}
@@ -73,11 +73,11 @@ export default function ArticleCard({
   }
 
   return (
-    <article className="article-card group py-4">
+    <article className="article-card group py-8">
       <Link href={`/articles/${slug}`}>
-        <div className="flex gap-4">
+        <div className="flex flex-col md:flex-row gap-8">
           <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-3 mb-3">
               <span className="font-sans text-xs font-bold uppercase tracking-wider text-gray-500">
                 {getCategoryLabel()}
               </span>
@@ -86,17 +86,17 @@ export default function ArticleCard({
                 {formattedDate}
               </time>
             </div>
-            <h3 className="text-xl font-bold mb-2 group-hover:underline">
+            <h3 className="text-2xl md:text-3xl font-bold mb-3 group-hover:underline font-headline leading-tight">
               {title}
             </h3>
             {excerpt && (
-              <p className="text-gray-600 text-sm line-clamp-2">
+              <p className="text-gray-600 text-lg leading-relaxed line-clamp-3 font-serif">
                 {excerpt}
               </p>
             )}
           </div>
           {featuredImage && (
-            <div className="relative w-32 h-24 flex-shrink-0 overflow-hidden bg-gray-100">
+            <div className="relative w-full md:w-64 aspect-[16/10] flex-shrink-0 overflow-hidden bg-gray-100">
               <Image
                 src={featuredImage}
                 alt={title}

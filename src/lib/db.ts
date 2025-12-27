@@ -59,6 +59,7 @@ export interface YouTubeVideo {
   published_at: Date;
   view_count: number;
   like_count: number;
+  summary: string | null;
   fetched_at: Date;
 }
 
@@ -89,6 +90,14 @@ export async function getPublishedArticles(limit = 10): Promise<Article[]> {
   return result as Article[];
 }
 
+export async function getAllArticles(): Promise<Article[]> {
+  const result = await sql`
+    SELECT * FROM articles
+    ORDER BY created_at DESC
+  `;
+  return result as Article[];
+}
+
 export async function getFeaturedArticles(limit = 5): Promise<Article[]> {
   const result = await sql`
     SELECT * FROM articles
@@ -106,6 +115,45 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
     LIMIT 1
   `;
   return (result[0] as Article) || null;
+}
+
+export async function upsertArticle(article: Partial<Article> & { slug: string; title: string; content: string }): Promise<void> {
+  const createdAt = article.created_at ? new Date(article.created_at) : new Date();
+  const updatedAt = article.updated_at ? new Date(article.updated_at) : new Date();
+
+  await sql`
+    INSERT INTO articles (title, slug, excerpt, content, featured_image, category, source_type, source_url, published, featured, created_at, updated_at)
+    VALUES (
+      ${article.title},
+      ${article.slug},
+      ${article.excerpt || null},
+      ${article.content},
+      ${article.featured_image || null},
+      ${article.category || 'update'},
+      ${article.source_type || null},
+      ${article.source_url || null},
+      ${article.published ?? false},
+      ${article.featured ?? false},
+      ${createdAt},
+      ${updatedAt}
+    )
+    ON CONFLICT (slug)
+    DO UPDATE SET
+      title = EXCLUDED.title,
+      excerpt = EXCLUDED.excerpt,
+      content = EXCLUDED.content,
+      featured_image = EXCLUDED.featured_image,
+      category = EXCLUDED.category,
+      source_type = EXCLUDED.source_type,
+      source_url = EXCLUDED.source_url,
+      published = EXCLUDED.published,
+      featured = EXCLUDED.featured,
+      updated_at = EXCLUDED.updated_at
+  `;
+}
+
+export async function deleteAllArticles(): Promise<void> {
+  await sql`DELETE FROM articles`;
 }
 
 export async function getXPosts(limit = 20): Promise<XPost[]> {
@@ -198,8 +246,8 @@ export async function clearYouTubeVideos(): Promise<void> {
 
 export async function upsertYouTubeVideo(video: Omit<YouTubeVideo, 'id' | 'fetched_at'>): Promise<void> {
   await sql`
-    INSERT INTO youtube_videos (video_id, title, description, thumbnail_url, published_at, view_count, like_count, fetched_at)
-    VALUES (${video.video_id}, ${video.title}, ${video.description}, ${video.thumbnail_url}, ${video.published_at}, ${video.view_count}, ${video.like_count}, CURRENT_TIMESTAMP)
+    INSERT INTO youtube_videos (video_id, title, description, thumbnail_url, published_at, view_count, like_count, summary, fetched_at)
+    VALUES (${video.video_id}, ${video.title}, ${video.description}, ${video.thumbnail_url}, ${video.published_at}, ${video.view_count}, ${video.like_count}, ${video.summary}, CURRENT_TIMESTAMP)
     ON CONFLICT (video_id)
     DO UPDATE SET
       title = EXCLUDED.title,

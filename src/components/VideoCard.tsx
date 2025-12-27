@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import ReactMarkdown from 'react-markdown';
 
 interface VideoCardProps {
   video: {
@@ -11,6 +12,7 @@ interface VideoCardProps {
     thumbnail_url: string | null;
     published_at: Date;
     view_count: number;
+    summary?: string | null;
   };
 }
 
@@ -58,25 +60,38 @@ function formatTimestamp(seconds: number): string {
 // Generate consistent colors for speakers
 function getSpeakerColor(speaker: string): string {
   const colors = [
-    'bg-blue-100 text-blue-800',
-    'bg-green-100 text-green-800',
-    'bg-purple-100 text-purple-800',
-    'bg-orange-100 text-orange-800',
-    'bg-pink-100 text-pink-800',
-    'bg-teal-100 text-teal-800',
+    'bg-gray-100 text-gray-800 border-gray-300',
+    'bg-gray-50 text-gray-700 border-gray-200',
   ];
   const index = speaker.charCodeAt(speaker.length - 1) % colors.length;
   return colors[index];
+}
+
+// Group consecutive segments by speaker for cleaner display
+function groupSegmentsBySpeaker(segments: TranscriptSegment[]): { speaker: string; texts: { text: string; start: number }[]; startTime: number }[] {
+  const grouped: { speaker: string; texts: { text: string; start: number }[]; startTime: number }[] = [];
+
+  for (const segment of segments) {
+    const last = grouped[grouped.length - 1];
+    if (last && last.speaker === segment.speaker) {
+      last.texts.push({ text: segment.text, start: segment.start });
+    } else {
+      grouped.push({
+        speaker: segment.speaker,
+        texts: [{ text: segment.text, start: segment.start }],
+        startTime: segment.start,
+      });
+    }
+  }
+
+  return grouped;
 }
 
 export default function VideoCard({ video }: VideoCardProps) {
   const [showModal, setShowModal] = useState(false);
   const [activeTab, setActiveTab] = useState<'transcript' | 'summary'>('summary');
   const [transcript, setTranscript] = useState<TranscriptSegment[] | null>(null);
-  const [fullText, setFullText] = useState<string>('');
-  const [summary, setSummary] = useState<string>('');
   const [loadingTranscript, setLoadingTranscript] = useState(false);
-  const [loadingSummary, setLoadingSummary] = useState(false);
   const [transcriptProgress, setTranscriptProgress] = useState<string>('');
   const [error, setError] = useState<string>('');
 
@@ -84,7 +99,7 @@ export default function VideoCard({ video }: VideoCardProps) {
     if (transcript) return; // Already fetched
 
     setLoadingTranscript(true);
-    setTranscriptProgress('Downloading audio from YouTube...');
+    setTranscriptProgress('Loading transcript...');
     setError('');
 
     try {
@@ -96,7 +111,6 @@ export default function VideoCard({ video }: VideoCardProps) {
       }
 
       setTranscript(data.segments);
-      setFullText(data.fullText);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load transcript');
     } finally {
@@ -105,57 +119,9 @@ export default function VideoCard({ video }: VideoCardProps) {
     }
   };
 
-  const fetchSummary = async () => {
-    if (summary) return; // Already fetched
-
-    setLoadingSummary(true);
-    setError('');
-
-    try {
-      // First fetch transcript if we don't have it
-      let text = fullText;
-      if (!text) {
-        setTranscriptProgress('Downloading audio from YouTube...');
-        const transcriptResponse = await fetch(`/api/youtube/transcript?videoId=${video.video_id}`);
-        const transcriptData = await transcriptResponse.json();
-        if (!transcriptResponse.ok) {
-          throw new Error(transcriptData.error || 'Failed to fetch transcript');
-        }
-        text = transcriptData.fullText;
-        setTranscript(transcriptData.segments);
-        setFullText(text);
-        setTranscriptProgress('');
-      }
-
-      const response = await fetch('/api/youtube/summary', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          transcript: text,
-          videoTitle: video.title,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to generate summary');
-      }
-
-      setSummary(data.summary);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate summary');
-    } finally {
-      setLoadingSummary(false);
-      setTranscriptProgress('');
-    }
-  };
-
   const openModal = async () => {
     setShowModal(true);
-    if (activeTab === 'summary') {
-      fetchSummary();
-    } else {
+    if (activeTab === 'transcript') {
       fetchTranscript();
     }
   };
@@ -163,9 +129,7 @@ export default function VideoCard({ video }: VideoCardProps) {
   const handleTabChange = (tab: 'transcript' | 'summary') => {
     setActiveTab(tab);
     setError('');
-    if (tab === 'summary' && !summary) {
-      fetchSummary();
-    } else if (tab === 'transcript' && !transcript) {
+    if (tab === 'transcript' && !transcript) {
       fetchTranscript();
     }
   };
@@ -261,8 +225,8 @@ export default function VideoCard({ video }: VideoCardProps) {
               <button
                 onClick={() => handleTabChange('summary')}
                 className={`flex-1 py-3 text-sm font-medium ${activeTab === 'summary'
-                    ? 'text-black border-b-2 border-black'
-                    : 'text-gray-500 hover:text-black'
+                  ? 'text-black border-b-2 border-black'
+                  : 'text-gray-500 hover:text-black'
                   }`}
               >
                 What is this video about?
@@ -270,8 +234,8 @@ export default function VideoCard({ video }: VideoCardProps) {
               <button
                 onClick={() => handleTabChange('transcript')}
                 className={`flex-1 py-3 text-sm font-medium ${activeTab === 'transcript'
-                    ? 'text-black border-b-2 border-black'
-                    : 'text-gray-500 hover:text-black'
+                  ? 'text-black border-b-2 border-black'
+                  : 'text-gray-500 hover:text-black'
                   }`}
               >
                 Full Transcript
@@ -288,23 +252,18 @@ export default function VideoCard({ video }: VideoCardProps) {
 
               {activeTab === 'summary' && (
                 <div>
-                  {loadingSummary || loadingTranscript ? (
-                    <div className="flex flex-col items-center justify-center py-12">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mb-3"></div>
-                      <span className="text-gray-600 text-sm">
-                        {transcriptProgress || (loadingTranscript ? 'Transcribing audio with AI...' : 'Generating summary...')}
-                      </span>
-                      {loadingTranscript && (
-                        <span className="text-gray-400 text-xs mt-2">
-                          This may take a minute for longer videos
-                        </span>
-                      )}
+                  {video.summary ? (
+                    <div className="prose prose-sm max-w-none font-sans prose-headings:font-bold prose-headings:text-black prose-p:text-gray-700 prose-li:text-gray-700 prose-strong:text-black">
+                      <ReactMarkdown>{video.summary}</ReactMarkdown>
                     </div>
-                  ) : summary ? (
-                    <div className="prose prose-sm max-w-none font-sans">
-                      <div className="whitespace-pre-wrap">{summary}</div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <svg className="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <p className="text-gray-500 text-sm">No summary available for this video yet.</p>
                     </div>
-                  ) : null}
+                  )}
                 </div>
               )}
 
@@ -321,25 +280,43 @@ export default function VideoCard({ video }: VideoCardProps) {
                       </span>
                     </div>
                   ) : transcript && transcript.length > 0 ? (
-                    <div className="space-y-3 font-sans text-sm">
-                      {transcript.map((segment, index) => (
-                        <div key={index} className="flex gap-3 items-start">
-                          <a
-                            href={`https://www.youtube.com/watch?v=${video.video_id}&t=${Math.floor(segment.start)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:underline font-mono text-xs shrink-0 w-14 pt-0.5"
-                          >
-                            {formatTimestamp(segment.start)}
-                          </a>
-                          <div className="flex-1">
-                            <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium mr-2 ${getSpeakerColor(segment.speaker)}`}>
-                              {segment.speaker}
-                            </span>
-                            <span className="text-gray-800">{segment.text}</span>
+                    <div className="font-sans text-sm">
+                      {(() => {
+                        const hasTimestamps = transcript.some(s => s.start > 0);
+                        const grouped = groupSegmentsBySpeaker(transcript);
+
+                        return (
+                          <div className="space-y-4">
+                            {grouped.map((group, index) => (
+                              <div key={index} className="border-l-2 border-gray-200 pl-4">
+                                <div className="flex items-center gap-2 mb-1.5">
+                                  <span className={`inline-block px-2 py-0.5 border rounded text-xs font-bold ${getSpeakerColor(group.speaker)}`}>
+                                    {group.speaker}
+                                  </span>
+                                  {hasTimestamps && (
+                                    <a
+                                      href={`https://www.youtube.com/watch?v=${video.video_id}&t=${Math.floor(group.startTime)}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-gray-400 hover:text-black font-mono text-xs"
+                                    >
+                                      {formatTimestamp(group.startTime)}
+                                    </a>
+                                  )}
+                                </div>
+                                <p className="text-gray-800 leading-relaxed">
+                                  {group.texts.map((t, i) => (
+                                    <span key={i}>
+                                      {i > 0 && ' '}
+                                      {t.text}
+                                    </span>
+                                  ))}
+                                </p>
+                              </div>
+                            ))}
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })()}
                     </div>
                   ) : transcript && transcript.length === 0 ? (
                     <div className="text-center py-12 text-gray-500">

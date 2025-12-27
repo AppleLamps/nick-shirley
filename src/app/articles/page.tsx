@@ -94,15 +94,15 @@ export default async function ArticlesPage() {
 
   // Use sample data if no articles in database
   if (articles.length === 0) {
-    articles = sampleArticles;
+    // articles = sampleArticles;
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-[1200px] mx-auto px-4 py-12">
       {/* Page Header */}
-      <div className="border-t-4 border-black pt-6 mb-8">
-        <h1 className="text-4xl font-bold mb-2">Articles</h1>
-        <p className="text-gray-600 font-sans">
+      <div className="border-t-4 border-black pt-8 mb-12">
+        <h1 className="text-6xl font-bold mb-4 font-headline">Articles</h1>
+        <p className="text-xl text-gray-600 font-sans">
           Latest updates, reports, and stories from around the world.
         </p>
       </div>
@@ -124,8 +124,8 @@ export default async function ArticlesPage() {
       </div>
 
       {articles.length === 0 && (
-        <div className="text-center py-16">
-          <p className="text-gray-500 font-sans">No articles available yet.</p>
+        <div className="text-center py-24">
+          <p className="text-gray-500 font-sans text-xl">No articles available yet.</p>
         </div>
       )}
     </div>

@@ -66,20 +66,20 @@ export default async function Home() {
 
   // Use sample data if no articles in database
   if (featuredArticles.length === 0) {
-    featuredArticles = sampleArticles.filter(a => a.featured);
+    // featuredArticles = sampleArticles.filter(a => a.featured);
   }
   if (latestArticles.length === 0) {
-    latestArticles = sampleArticles;
+    // latestArticles = sampleArticles;
   }
 
   const featuredArticle = featuredArticles[0];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="max-w-[1600px] mx-auto px-4 py-12">
       {/* Featured Article */}
       {featuredArticle && (
-        <section className="mb-12">
-          <div className="border-t-4 border-black pt-6">
+        <section className="mb-16">
+          <div className="border-t-4 border-black pt-8">
             <ArticleCard
               title={featuredArticle.title}
               slug={featuredArticle.slug}
@@ -95,11 +95,11 @@ export default async function Home() {
       )}
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         {/* Articles Column */}
-        <div className="lg:col-span-2">
-          <div className="border-t-2 border-black pt-4 mb-6">
-            <h2 className="font-sans font-bold text-sm uppercase tracking-wider mb-6">
+        <div className="lg:col-span-8">
+          <div className="border-t-2 border-black pt-4 mb-8">
+            <h2 className="font-sans font-bold text-lg uppercase tracking-wider mb-8">
               Latest Updates
             </h2>
           </div>
@@ -119,10 +119,10 @@ export default async function Home() {
             ))}
           </div>
 
-          <div className="mt-8">
+          <div className="mt-12">
             <Link
               href="/articles"
-              className="inline-block font-sans text-sm font-bold uppercase tracking-wider border-2 border-black px-6 py-3 hover:bg-black hover:text-white transition-colors"
+              className="inline-block font-sans text-base font-bold uppercase tracking-wider border-2 border-black px-8 py-4 hover:bg-black hover:text-white transition-colors"
             >
               View All Articles
             </Link>
@@ -130,13 +130,13 @@ export default async function Home() {
         </div>
 
         {/* Sidebar with Live Feeds */}
-        <div className="lg:col-span-1 space-y-6">
+        <div className="lg:col-span-4 space-y-12">
           {/* Nick's Popular Posts */}
           <XFeed
             type="posts"
             title="Nick's Popular Posts"
             refreshInterval={30 * 60 * 1000}
-            maxHeight={400}
+            maxHeight={600}
           />
 
           {/* Mentions Feed */}
@@ -144,41 +144,41 @@ export default async function Home() {
             type="mentions"
             title="What People Are Saying"
             refreshInterval={30 * 60 * 1000}
-            maxHeight={400}
+            maxHeight={600}
           />
         </div>
       </div>
 
       {/* About Section */}
-      <section className="mt-16 border-t-2 border-black pt-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+      <section className="mt-24 border-t-4 border-black pt-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div>
-            <h2 className="text-3xl font-bold mb-4">About Nick Shirley</h2>
-            <p className="text-gray-600 mb-4 leading-relaxed">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 font-headline">About Nick Shirley</h2>
+            <p className="text-gray-600 mb-6 leading-relaxed text-xl font-serif">
               Nick Shirley is an independent journalist who travels the world to report
               on current events. With a commitment to on-the-ground reporting and
               unfiltered storytelling, Nick brings you the stories that matter most.
             </p>
-            <p className="text-gray-600 mb-6 leading-relaxed">
+            <p className="text-gray-600 mb-8 leading-relaxed text-xl font-serif">
               Follow his journey on YouTube and X for real-time updates, in-depth
               documentaries, and behind-the-scenes content from locations around the globe.
             </p>
             <Link
               href="/about"
-              className="inline-block font-sans text-sm font-bold uppercase tracking-wider underline hover:no-underline"
+              className="inline-block font-sans text-base font-bold uppercase tracking-wider underline hover:no-underline"
             >
               Read Full Bio
             </Link>
           </div>
-          <div className="flex gap-4 justify-center md:justify-end">
+          <div className="flex gap-6 justify-center md:justify-end">
             <a
               href="https://youtube.com/@nickshirley"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 border-2 border-black px-6 py-3 hover:bg-black hover:text-white transition-colors font-sans text-sm font-bold"
+              className="flex items-center gap-3 border-2 border-black px-8 py-4 hover:bg-black hover:text-white transition-colors font-sans text-base font-bold"
             >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
               </svg>
               YouTube
             </a>
@@ -186,10 +186,10 @@ export default async function Home() {
               href="https://x.com/nickshirleyy"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 border-2 border-black px-6 py-3 hover:bg-black hover:text-white transition-colors font-sans text-sm font-bold"
+              className="flex items-center gap-3 border-2 border-black px-8 py-4 hover:bg-black hover:text-white transition-colors font-sans text-base font-bold"
             >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
               </svg>
               Follow on X
             </a>

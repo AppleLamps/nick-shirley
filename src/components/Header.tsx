@@ -41,30 +41,30 @@ export default function Header() {
       </div>
 
       {/* Main header with logo */}
-      <div className="py-6">
-        <div className="max-w-7xl mx-auto px-4 text-center">
+      <div className="py-8 md:py-10">
+        <div className="max-w-[1600px] mx-auto px-4 text-center">
           <Link href="/">
-            <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
+            <h1 className="text-6xl md:text-8xl font-bold tracking-tight font-headline">
               Nick Shirley
             </h1>
           </Link>
-          <p className="mt-2 text-gray-600 font-sans text-sm tracking-widest uppercase">
+          <p className="mt-3 text-gray-600 font-sans text-base md:text-lg tracking-[0.2em] uppercase">
             Independent Journalist
           </p>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="border-t border-gray-200">
-        <div className="max-w-7xl mx-auto px-4">
+      <nav className="border-t border-gray-200 border-b-2 border-black mb-8">
+        <div className="max-w-[1600px] mx-auto px-4">
           {/* Mobile menu button */}
           <button
-            className="md:hidden w-full py-3 flex items-center justify-center gap-2 font-sans text-sm"
+            className="md:hidden w-full py-4 flex items-center justify-center gap-2 font-sans text-lg font-bold"
             onClick={() => setMenuOpen(!menuOpen)}
           >
             <span>Menu</span>
             <svg
-              className={`w-4 h-4 transition-transform ${menuOpen ? 'rotate-180' : ''}`}
+              className={`w-5 h-5 transition-transform ${menuOpen ? 'rotate-180' : ''}`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -75,7 +75,7 @@ export default function Header() {
 
           {/* Desktop navigation */}
           <ul className={`
-            md:flex md:justify-center md:gap-8 py-3 font-sans text-sm
+            md:flex md:justify-center md:gap-12 py-4 font-sans text-base md:text-lg font-bold uppercase tracking-wider
             ${menuOpen ? 'block' : 'hidden md:flex'}
           `}>
             <li>

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 :root {
   --background: #ffffff;
@@ -21,13 +22,19 @@ body {
   color: var(--foreground);
   font-family: 'Georgia', 'Times New Roman', serif;
   line-height: 1.6;
+  font-size: 18px;
 }
 
 /* NYT-inspired typography */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: 'Cheltenham', 'Georgia', serif;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.1;
   letter-spacing: -0.02em;
 }
 
@@ -51,13 +58,14 @@ h1, h2, h3, h4, h5, h6 {
 /* Article styling */
 .article-content p {
   margin-bottom: 1.5rem;
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   line-height: 1.8;
 }
 
 .article-content h2 {
-  margin-top: 2.5rem;
-  margin-bottom: 1rem;
+  margin-top: 3rem;
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
 }
 
 /* Link styling */
@@ -90,9 +98,12 @@ a:hover {
 
 /* Live indicator pulse */
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }

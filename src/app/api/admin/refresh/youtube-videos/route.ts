@@ -31,6 +31,7 @@ export async function POST() {
         published_at: new Date(video.published_at),
         view_count: video.view_count,
         like_count: video.like_count,
+        summary: null,
       });
     }
 

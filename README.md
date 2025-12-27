@@ -4,17 +4,20 @@ A modern, NYT-inspired portfolio website for Nick Shirley, an independent journa
 
 ## Features
 
-- **NYT-Inspired Design**: Clean, professional layout with light theme and black accents
-- **Articles System**: Publish and manage articles about YouTube videos, X posts, and original content
-- **Live X Feeds**: Real-time display of Nick's X posts and mentions (refreshes every 5 minutes)
-- **Responsive Design**: Fully responsive layout for all device sizes
-- **Database Integration**: PostgreSQL (Neon) for storing articles and caching feeds
+- **NYT-Inspired Design**: Clean, professional layout with light theme and black accents.
+- **Articles System**: Full Markdown support for rich text articles, including bold, italics, lists, and more.
+- **Admin Panel**: Secure area to manage content, import/export articles, and manually refresh feeds.
+- **Live X Feeds**: Real-time display of Nick's X posts and mentions (cached for performance).
+- **Responsive Design**: Fully responsive layout for all device sizes.
+- **Database Integration**: PostgreSQL (Neon) for storing articles and caching feeds.
 
 ## Tech Stack
 
-- **Framework**: Next.js 15 with App Router
-- **Styling**: Tailwind CSS
+- **Framework**: Next.js 16 with App Router
+- **Styling**: Tailwind CSS + @tailwindcss/typography
 - **Database**: Neon (PostgreSQL)
+- **ORM**: Prisma (Client) / Neon Serverless Driver
+- **Content**: React Markdown
 - **API Integration**: XAI API for X feeds
 - **Deployment**: Vercel
 
@@ -29,33 +32,49 @@ A modern, NYT-inspired portfolio website for Nick Shirley, an independent journa
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone <repository-url>
 cd nick-shirley
 ```
 
-2. Install dependencies:
+1. Install dependencies:
+
 ```bash
 npm install
 ```
 
-3. Set up environment variables:
+1. Set up environment variables:
+
 ```bash
 cp .env.example .env.local
 ```
 
 Edit `.env.local` with your credentials:
+
 ```env
 DATABASE_URL=your_neon_database_url
 XAI_API_KEY=your_xai_api_key
 NEXT_PUBLIC_BASE_URL=http://localhost:3000
+NEXT_PUBLIC_ADMIN_PASSWORD=admin123
 ```
 
-4. Set up the database:
+1. Initialize the database:
 
-Run the SQL in `prisma/schema.sql` in your Neon console to create the required tables.
+```bash
+node scripts/init-db.mjs
+```
 
-5. Start the development server:
+1. Seed the database with initial content:
+
+```bash
+node scripts/seed-db.mjs
+```
+
+*Note: You can customize the seed data in `scripts/posts.json`.*
+
+1. Start the development server:
+
 ```bash
 npm run dev
 ```
@@ -67,7 +86,9 @@ Open [http://localhost:3000](http://localhost:3000) to view the site.
 ```
 src/
 ├── app/                    # Next.js App Router pages
+│   ├── admin/             # Admin panel
 │   ├── api/               # API routes
+│   │   ├── admin/         # Admin actions (refresh, import/export)
 │   │   ├── articles/      # Articles CRUD
 │   │   └── x/             # X feeds (posts & mentions)
 │   ├── articles/          # Articles pages
@@ -75,44 +96,40 @@ src/
 │   ├── live-feed/         # Live X feed page
 │   └── videos/            # Videos page
 ├── components/            # React components
+│   ├── AdminPanel.tsx
+│   ├── ArticleCard.tsx
 │   ├── Header.tsx
 │   ├── Footer.tsx
-│   ├── ArticleCard.tsx
 │   ├── XFeed.tsx
 │   └── YouTubeEmbed.tsx
 └── lib/                   # Utilities
     ├── db.ts              # Database queries
     └── xai.ts             # XAI API integration
+scripts/
+├── init-db.mjs            # Database initialization script
+├── seed-db.mjs            # Database seeding script
+└── posts.json             # Seed data
 ```
 
-## Deployment on Vercel
+## Admin Panel
 
-1. Push to GitHub
-2. Import project in Vercel
-3. Add environment variables:
-   - `DATABASE_URL`
-   - `XAI_API_KEY`
-   - `NEXT_PUBLIC_BASE_URL`
-4. Deploy
+Access the admin panel at `/admin`.
 
-## API Routes
-
-### Articles
-- `GET /api/articles` - Get all published articles
-- `GET /api/articles?featured=true` - Get featured articles
-- `POST /api/articles` - Create new article
-
-### X Feeds
-- `GET /api/x/posts` - Get Nick's X posts
-- `GET /api/x/mentions` - Get mentions about Nick
+- **Password**: Set via `NEXT_PUBLIC_ADMIN_PASSWORD` (default: `admin123`).
+- **Features**:
+  - **Feed Refresh**: Manually trigger updates for X posts, mentions, and YouTube videos.
+  - **Article Manager**: Import/Export articles via JSON.
+  - **Purge**: Delete all articles from the database.
 
 ## Database Schema
 
 The database includes tables for:
-- `articles` - Blog posts and updates
+
+- `articles` - Blog posts and updates (supports Markdown content)
 - `x_posts` - Cached X posts from Nick
 - `x_mentions` - Cached mentions about Nick
 - `youtube_videos` - Cached YouTube video data
+- `youtube_transcripts` - Cached video transcripts
 - `settings` - Site configuration
 
 ## License

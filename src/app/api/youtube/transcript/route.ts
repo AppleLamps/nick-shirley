@@ -156,6 +156,84 @@ export async function GET(request: NextRequest) {
 
     console.log(`Processing video: ${videoTitle} (${durationSeconds}s)`);
 
+    // Check for local transcript file
+    try {
+      const transcriptsDir = path.join(process.cwd(), 'src', 'app', 'transcripts');
+      if (fs.existsSync(transcriptsDir)) {
+        const files = fs.readdirSync(transcriptsDir);
+
+        // Simple normalization for matching: remove special chars, lowercase
+        const normalize = (s: string) => s.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+        const targetTitle = normalize(videoTitle);
+
+        const matchedFile = files.find(file => {
+          const fileNameWithoutExt = file.replace(/\.txt$/, '');
+          return normalize(fileNameWithoutExt) === targetTitle;
+        });
+
+        if (matchedFile) {
+          console.log(`Found local transcript file: ${matchedFile}`);
+          const filePath = path.join(transcriptsDir, matchedFile);
+          const content = fs.readFileSync(filePath, 'utf-8');
+
+          // Parse the custom format: [Speaker]\nText
+          const segments: DiarizedSegment[] = [];
+          const lines = content.split('\n');
+          let currentSpeaker = 'Speaker';
+          let currentText = '';
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed) continue;
+
+            const speakerMatch = trimmed.match(/^\[(.*?)\]$/);
+            if (speakerMatch) {
+              if (currentText) {
+                segments.push({
+                  speaker: currentSpeaker,
+                  text: currentText.trim(),
+                  start: 0, // No timestamp available in text file
+                  end: 0
+                });
+                currentText = '';
+              }
+              currentSpeaker = speakerMatch[1];
+            } else {
+              currentText += ' ' + trimmed;
+            }
+          }
+
+          // Add last segment
+          if (currentText) {
+            segments.push({
+              speaker: currentSpeaker,
+              text: currentText.trim(),
+              start: 0,
+              end: 0
+            });
+          }
+
+          const fullText = segments.map(s => `[${s.speaker}]: ${s.text}`).join('\n\n');
+
+          // Save to DB cache
+          await saveTranscript(videoId, fullText, segments, durationSeconds);
+
+          return NextResponse.json({
+            videoId,
+            title: videoTitle,
+            duration: durationSeconds,
+            fullText,
+            segments,
+            cached: false,
+            source: 'local_file'
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Error checking local transcripts:', err);
+      // Continue to YouTube download if local file fails
+    }
+
     // Get streaming data
     const streamingData = info.streaming_data;
     if (!streamingData) {
@@ -179,7 +257,7 @@ export async function GET(request: NextRequest) {
       }
 
       // Get the deciphered URL
-      const decipheredUrl = formatWithDecipher.decipher(youtube.session.player);
+      const decipheredUrl = await formatWithDecipher.decipher(youtube.session.player);
       if (!decipheredUrl) {
         throw new Error('Could not decipher audio URL');
       }

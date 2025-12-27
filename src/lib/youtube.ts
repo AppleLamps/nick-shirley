@@ -162,10 +162,14 @@ export async function fetchYouTubeVideos(limit = 5): Promise<YouTubeVideoData[]>
     const items: YouTubeVideoItem[] = videosData.items || [];
 
     // Filter out Shorts and livestreams/replays
+    // Note: The YouTube API does not have a direct filter for "Videos only" (excluding Shorts and Live).
+    // - Shorts are filtered by duration (<= 180s).
+    // - Live streams are filtered by the presence of liveStreamingDetails.
+    // - WARNING: This also filters out finished Premieres, as they have liveStreamingDetails.
     const filtered = items
       .filter((video) => {
         const durationSeconds = parseDurationSeconds(video.contentDetails?.duration || '');
-        const isShort = durationSeconds > 0 && durationSeconds <= 60;
+        const isShort = durationSeconds > 0 && durationSeconds <= 180;
         const isLiveOrUpcoming =
           video.snippet?.liveBroadcastContent === 'live' ||
           video.snippet?.liveBroadcastContent === 'upcoming';

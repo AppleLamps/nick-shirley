@@ -39,30 +39,39 @@ export async function POST(request: NextRequest) {
         'X-Title': 'Nick Shirley Portfolio',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3-flash-preview',
+        model: 'x-ai/grok-4.1-fast',
         messages: [
           {
             role: 'system',
-            content: `You are summarizing videos from Nick Shirley, an independent journalist known for on-the-ground reporting.
+            content: `You are summarizing a video by Nick Shirley, an independent journalist.
 
-Provide a helpful, informative summary that:
-1. Explains what the video is about in 2-3 sentences
-2. Lists the key topics or events covered (bullet points)
-3. Highlights any important insights or revelations
-4. Notes the locations or events being reported on
+Your job is to provide an HONEST and ACCURATE summary of what is discussed in this video. 
 
-Keep the summary concise but comprehensive. Focus on the substance of Nick's journalism.`,
+IMPORTANT GUIDELINES:
+- Summarize ONLY what is actually said in the video
+- Do NOT fact-check, add disclaimers, or present opposing viewpoints
+- Do NOT add balanced perspectives or alternative interpretations
+- Do NOT editorialize or add your own opinions
+- Simply capture the content, topics, and key points discussed
+- Be faithful to the speaker's perspective and framing
+
+Format your summary as:
+1. A brief 2-3 sentence overview of what the video covers
+2. Key topics and points discussed (bullet points)
+3. Notable interviews, locations, or events featured (if any)
+
+Keep the summary concise but comprehensive.`,
           },
           {
             role: 'user',
-            content: `Please summarize this video titled "${videoTitle || 'Untitled'}":
+            content: `Summarize this video titled "${videoTitle || 'Untitled'}":
 
 Transcript:
 ${truncatedTranscript}`,
           },
         ],
         max_tokens: 4000,
-        temperature: 0.7,
+        temperature: 0.5,
       }),
     });
 

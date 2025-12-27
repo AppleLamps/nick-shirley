@@ -59,6 +59,7 @@ CREATE TABLE IF NOT EXISTS youtube_videos (
     published_at TIMESTAMP WITH TIME ZONE,
     view_count INTEGER DEFAULT 0,
     like_count INTEGER DEFAULT 0,
+    summary TEXT,
     fetched_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
