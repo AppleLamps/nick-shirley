@@ -62,6 +62,16 @@ CREATE TABLE IF NOT EXISTS youtube_videos (
     fetched_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- YouTube video transcripts cache
+CREATE TABLE IF NOT EXISTS youtube_transcripts (
+    id SERIAL PRIMARY KEY,
+    video_id VARCHAR(50) UNIQUE NOT NULL,
+    full_text TEXT NOT NULL,
+    segments JSONB NOT NULL, -- Array of {speaker, text, start, end}
+    duration_seconds INTEGER,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Site settings
 CREATE TABLE IF NOT EXISTS settings (
     id SERIAL PRIMARY KEY,

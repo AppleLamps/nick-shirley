@@ -10,11 +10,11 @@ export async function GET() {
     // First, try to get cached posts from the database
     let posts = await getXPosts(20);
 
-    // If no posts or posts are stale (older than 5 minutes), fetch fresh ones
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    // If no posts or posts are stale (older than 30 minutes), fetch fresh ones
+    const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
     const needsRefresh =
       posts.length === 0 ||
-      (posts[0] && new Date(posts[0].fetched_at) < fiveMinutesAgo);
+      (posts[0] && new Date(posts[0].fetched_at) < thirtyMinutesAgo);
 
     if (needsRefresh) {
       try {

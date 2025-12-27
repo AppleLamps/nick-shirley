@@ -10,11 +10,11 @@ export async function GET() {
     // First, try to get cached mentions from the database
     let mentions = await getXMentions(20);
 
-    // If no mentions or mentions are stale (older than 5 minutes), fetch fresh ones
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    // If no mentions or mentions are stale (older than 30 minutes), fetch fresh ones
+    const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
     const needsRefresh =
       mentions.length === 0 ||
-      (mentions[0] && new Date(mentions[0].fetched_at) < fiveMinutesAgo);
+      (mentions[0] && new Date(mentions[0].fetched_at) < thirtyMinutesAgo);
 
     if (needsRefresh) {
       try {

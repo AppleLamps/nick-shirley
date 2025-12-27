@@ -62,6 +62,22 @@ export interface YouTubeVideo {
   fetched_at: Date;
 }
 
+export interface TranscriptSegment {
+  speaker: string;
+  text: string;
+  start: number;
+  end: number;
+}
+
+export interface YouTubeTranscript {
+  id: number;
+  video_id: string;
+  full_text: string;
+  segments: TranscriptSegment[];
+  duration_seconds: number | null;
+  created_at: Date;
+}
+
 // Database query helpers
 export async function getPublishedArticles(limit = 10): Promise<Article[]> {
   const result = await sql`
@@ -135,5 +151,60 @@ export async function upsertXMention(mention: Omit<XMention, 'id' | 'fetched_at'
       retweets_count = EXCLUDED.retweets_count,
       replies_count = EXCLUDED.replies_count,
       fetched_at = CURRENT_TIMESTAMP
+  `;
+}
+
+export async function getYouTubeVideos(limit = 5): Promise<YouTubeVideo[]> {
+  const result = await sql`
+    SELECT * FROM youtube_videos
+    ORDER BY published_at DESC
+    LIMIT ${limit}
+  `;
+  return result as YouTubeVideo[];
+}
+
+export async function upsertYouTubeVideo(video: Omit<YouTubeVideo, 'id' | 'fetched_at'>): Promise<void> {
+  await sql`
+    INSERT INTO youtube_videos (video_id, title, description, thumbnail_url, published_at, view_count, like_count)
+    VALUES (${video.video_id}, ${video.title}, ${video.description}, ${video.thumbnail_url}, ${video.published_at}, ${video.view_count}, ${video.like_count})
+    ON CONFLICT (video_id)
+    DO UPDATE SET
+      title = EXCLUDED.title,
+      description = EXCLUDED.description,
+      thumbnail_url = EXCLUDED.thumbnail_url,
+      view_count = EXCLUDED.view_count,
+      like_count = EXCLUDED.like_count,
+      fetched_at = CURRENT_TIMESTAMP
+  `;
+}
+
+export async function getTranscript(videoId: string): Promise<YouTubeTranscript | null> {
+  const result = await sql`
+    SELECT * FROM youtube_transcripts
+    WHERE video_id = ${videoId}
+    LIMIT 1
+  `;
+  if (result.length === 0) return null;
+
+  const row = result[0] as { id: number; video_id: string; full_text: string; segments: TranscriptSegment[]; duration_seconds: number | null; created_at: Date };
+  return {
+    ...row,
+    segments: typeof row.segments === 'string' ? JSON.parse(row.segments) : row.segments,
+  };
+}
+
+export async function saveTranscript(
+  videoId: string,
+  fullText: string,
+  segments: TranscriptSegment[],
+  durationSeconds: number | null
+): Promise<void> {
+  await sql`
+    INSERT INTO youtube_transcripts (video_id, full_text, segments, duration_seconds)
+    VALUES (${videoId}, ${fullText}, ${JSON.stringify(segments)}, ${durationSeconds})
+    ON CONFLICT (video_id) DO UPDATE SET
+      full_text = EXCLUDED.full_text,
+      segments = EXCLUDED.segments,
+      duration_seconds = EXCLUDED.duration_seconds
   `;
 }

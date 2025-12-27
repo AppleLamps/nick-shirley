@@ -4,9 +4,14 @@
 const XAI_API_URL = 'https://api.x.ai/v1';
 const NICK_HANDLE = 'nickshirleyy';
 
+interface XAIContentBlock {
+  type: string;
+  text?: string;
+}
+
 interface XAIResponseOutput {
   type: string;
-  content?: string;
+  content?: string | XAIContentBlock[];
   text?: string;
 }
 
@@ -66,16 +71,33 @@ async function callXAIWithXSearch(prompt: string): Promise<string> {
 
   const data: XAIResponse = await response.json();
 
+  // Debug log to see the structure
+  console.log('xAI response structure:', JSON.stringify(data, null, 2));
+
   // Extract the text content from the response output
   for (const output of data.output) {
     if (output.type === 'message' && output.content) {
-      return output.content;
+      // Content can be a string or an array of content blocks
+      if (typeof output.content === 'string') {
+        return output.content;
+      }
+      // Handle array of content blocks
+      if (Array.isArray(output.content)) {
+        const textParts = output.content
+          .filter((block) => block.type === 'text' && block.text)
+          .map((block) => block.text)
+          .join('');
+        if (textParts) {
+          return textParts;
+        }
+      }
     }
     if (output.text) {
       return output.text;
     }
   }
 
+  console.log('No text content found in xAI response');
   return '';
 }
 
@@ -100,6 +122,12 @@ export async function fetchNickShirleyPosts(): Promise<ParsedXPost[]> {
 
        If no posts are found, return an empty array [].`
     );
+
+    // Ensure response is a string
+    if (typeof response !== 'string' || !response) {
+      console.error('Invalid response type from xAI:', typeof response);
+      return [];
+    }
 
     // Try to parse the JSON response
     const jsonMatch = response.match(/\[[\s\S]*\]/);
@@ -141,6 +169,12 @@ export async function fetchMentionsAboutNick(): Promise<ParsedXPost[]> {
        If no trending mentions are found with 100+ likes, return an empty array [].`
     );
 
+    // Ensure response is a string
+    if (typeof response !== 'string' || !response) {
+      console.error('Invalid response type from xAI:', typeof response);
+      return [];
+    }
+
     // Try to parse the JSON response
     const jsonMatch = response.match(/\[[\s\S]*\]/);
     if (jsonMatch) {
@@ -179,7 +213,13 @@ export async function getLatestNewsAboutNick(): Promise<string> {
        Provide a factual but pro-Nick summary based on his recent posts and what people are saying about him.`
     );
 
-    return response;
+    // Ensure response is a string
+    if (typeof response !== 'string') {
+      console.error('Invalid response type from xAI:', typeof response);
+      return 'Unable to fetch latest updates at this time.';
+    }
+
+    return response || 'Unable to fetch latest updates at this time.';
   } catch (error) {
     console.error('Error getting news about Nick:', error);
     return 'Unable to fetch latest updates at this time.';

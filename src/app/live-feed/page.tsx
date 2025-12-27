@@ -1,4 +1,5 @@
 import XFeed from '@/components/XFeed';
+import TwitterEmbed from '@/components/TwitterEmbed';
 
 export const metadata = {
   title: 'Live Feed | Nick Shirley',
@@ -15,25 +16,21 @@ export default function LiveFeedPage() {
           <h1 className="text-4xl font-bold">Live Feed</h1>
         </div>
         <p className="text-gray-600 font-sans">
-          Real-time updates from X, refreshing every 5 minutes.
+          Real-time updates from X.
         </p>
       </div>
 
       {/* Feeds Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Nick's Posts */}
+        {/* Nick's Posts - Twitter Embed */}
         <div>
           <div className="mb-4">
             <h2 className="font-sans font-bold text-lg">Nick&apos;s Posts</h2>
             <p className="text-gray-500 text-sm font-sans">
-              Latest posts from @nickshirley
+              Latest posts from @nickshirleyy
             </p>
           </div>
-          <XFeed
-            type="posts"
-            title="Nick's Posts"
-            refreshInterval={5 * 60 * 1000}
-          />
+          <TwitterEmbed username="nickshirleyy" height={600} />
         </div>
 
         {/* Mentions */}
@@ -47,7 +44,7 @@ export default function LiveFeedPage() {
           <XFeed
             type="mentions"
             title="Mentions"
-            refreshInterval={5 * 60 * 1000}
+            refreshInterval={30 * 60 * 1000}
           />
         </div>
       </div>
@@ -60,17 +57,16 @@ export default function LiveFeedPage() {
         <p className="text-gray-600 text-sm font-sans leading-relaxed">
           This page displays real-time content from X (formerly Twitter). Nick&apos;s posts
           show his latest updates, reporting, and commentary. The mentions feed shows
-          what others are saying about Nick and his work. Both feeds refresh automatically
-          every 5 minutes to keep you up to date.
+          what others are saying about Nick and his work.
         </p>
         <div className="mt-4 flex gap-4">
           <a
-            href="https://x.com/nickshirley"
+            href="https://x.com/nickshirleyy"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 font-sans text-sm font-bold text-black hover:underline"
           >
-            Follow @nickshirley
+            Follow @nickshirleyy
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
