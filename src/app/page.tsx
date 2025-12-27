@@ -2,6 +2,7 @@ import Link from 'next/link';
 import ArticleCard from '@/components/ArticleCard';
 import XFeed from '@/components/XFeed';
 import { getPublishedArticles, getFeaturedArticles } from '@/lib/db';
+import { PersonJsonLd, WebSiteJsonLd } from '@/components/JsonLd';
 
 export const dynamic = 'force-dynamic';
 
@@ -75,7 +76,26 @@ export default async function Home() {
   const featuredArticle = featuredArticles[0];
 
   return (
-    <div className="max-w-[1600px] mx-auto px-4 py-12">
+    <>
+      <WebSiteJsonLd
+        name="Nick Shirley"
+        url="https://nickshirley.vercel.app"
+        description="Nick Shirley is an independent journalist who travels the world to report on current events."
+      />
+      <PersonJsonLd
+        name="Nick Shirley"
+        description="Independent journalist who travels the world to report on current events. Creator of investigative documentaries and on-the-ground reporting."
+        url="https://nickshirley.vercel.app/about"
+        image="https://nickshirley.vercel.app/nick.jpg"
+        jobTitle="Independent Journalist"
+        sameAs={[
+          "https://youtube.com/@NickShirley",
+          "https://x.com/nickshirleyy",
+          "https://instagram.com/nickshirley",
+          "https://facebook.com/profile.php?id=61555695281120"
+        ]}
+      />
+      <div className="max-w-[1600px] mx-auto px-4 py-12">
       {/* Featured Article */}
       {featuredArticle && (
         <section className="mb-16">
@@ -196,6 +216,7 @@ export default async function Home() {
           </div>
         </div>
       </section>
-    </div>
+      </div>
+    </>
   );
 }

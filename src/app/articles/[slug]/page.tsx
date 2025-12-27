@@ -6,6 +6,7 @@ import { getArticleBySlug } from '@/lib/db';
 import YouTubeEmbed from '@/components/YouTubeEmbed';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { ArticleJsonLd } from '@/components/JsonLd';
 
 export const dynamic = 'force-dynamic';
 
@@ -136,13 +137,44 @@ export async function generateMetadata({ params }: Props) {
 
   if (!article) {
     return {
-      title: 'Article Not Found | Nick Shirley',
+      title: 'Article Not Found',
     };
   }
 
+  const articleUrl = `https://nickshirley.vercel.app/articles/${slug}`;
+  const description = article.excerpt || 'Read the full article from Nick Shirley.';
+  const imageUrl = article.featured_image || 'https://nickshirley.vercel.app/nick.jpg';
+
   return {
-    title: `${article.title} | Nick Shirley`,
-    description: article.excerpt || 'Read the full article from Nick Shirley.',
+    title: article.title,
+    description,
+    authors: [{ name: 'Nick Shirley' }],
+    openGraph: {
+      title: article.title,
+      description,
+      type: 'article',
+      url: articleUrl,
+      publishedTime: new Date(article.created_at).toISOString(),
+      modifiedTime: new Date(article.updated_at).toISOString(),
+      authors: ['Nick Shirley'],
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: article.title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: article.title,
+      description,
+      images: [imageUrl],
+    },
+    alternates: {
+      canonical: articleUrl,
+    },
   };
 }
 
@@ -175,10 +207,22 @@ export default async function ArticlePage({ params }: Props) {
     ? article.source_url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([^&\n?#]+)/)?.[1]
     : null;
 
+  const articleUrl = `https://nickshirley.vercel.app/articles/${slug}`;
+
   return (
-    <article className="max-w-[1000px] mx-auto px-4 py-12">
-      {/* Breadcrumb */}
-      <nav className="mb-8 font-sans text-sm text-gray-500">
+    <>
+      <ArticleJsonLd
+        headline={article.title}
+        description={article.excerpt || 'Read the full article from Nick Shirley.'}
+        url={articleUrl}
+        image={article.featured_image || undefined}
+        datePublished={new Date(article.created_at).toISOString()}
+        dateModified={new Date(article.updated_at).toISOString()}
+        authorName="Nick Shirley"
+      />
+      <article className="max-w-[1000px] mx-auto px-4 py-12">
+        {/* Breadcrumb */}
+        <nav className="mb-8 font-sans text-sm text-gray-500">
         <Link href="/" className="hover:text-black">Home</Link>
         <span className="mx-3">/</span>
         <Link href="/articles" className="hover:text-black">Articles</Link>
@@ -292,7 +336,8 @@ export default async function ArticlePage({ params }: Props) {
           </svg>
           Back to all articles
         </Link>
-      </div>
-    </article>
+        </div>
+      </article>
+    </>
   );
 }
