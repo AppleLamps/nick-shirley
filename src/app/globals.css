@@ -22,7 +22,7 @@ body {
   color: var(--foreground);
   font-family: 'Georgia', 'Times New Roman', serif;
   line-height: 1.6;
-  font-size: 18px;
+  font-size: 16px;
 }
 
 /* NYT-inspired typography */
@@ -58,14 +58,14 @@ h6 {
 /* Article styling */
 .article-content p {
   margin-bottom: 1.5rem;
-  font-size: 1.25rem;
+  font-size: 1rem;
   line-height: 1.8;
 }
 
 .article-content h2 {
   margin-top: 3rem;
   margin-bottom: 1.5rem;
-  font-size: 2rem;
+  font-size: 1.5rem;
 }
 
 /* Link styling */

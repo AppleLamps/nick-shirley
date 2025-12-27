@@ -57,11 +57,11 @@ export default function ArticleCard({
                   {formattedDate}
                 </time>
               </div>
-              <h2 className="text-4xl md:text-6xl font-bold mb-6 group-hover:underline leading-tight font-headline">
+              <h2 className="text-2xl md:text-3xl font-bold mb-6 group-hover:underline leading-tight font-headline">
                 {title}
               </h2>
               {excerpt && (
-                <p className="text-gray-600 text-xl md:text-2xl leading-relaxed font-serif">
+                <p className="text-gray-600 text-base md:text-lg leading-relaxed font-serif">
                   {excerpt}
                 </p>
               )}
@@ -86,11 +86,11 @@ export default function ArticleCard({
                 {formattedDate}
               </time>
             </div>
-            <h3 className="text-2xl md:text-3xl font-bold mb-3 group-hover:underline font-headline leading-tight">
+            <h3 className="text-xl md:text-2xl font-bold mb-3 group-hover:underline font-headline leading-tight">
               {title}
             </h3>
             {excerpt && (
-              <p className="text-gray-600 text-lg leading-relaxed line-clamp-3 font-serif">
+              <p className="text-gray-600 text-base leading-relaxed line-clamp-3 font-serif">
                 {excerpt}
               </p>
             )}

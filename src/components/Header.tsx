@@ -44,11 +44,11 @@ export default function Header() {
       <div className="py-8 md:py-10">
         <div className="max-w-[1600px] mx-auto px-4 text-center">
           <Link href="/">
-            <h1 className="text-6xl md:text-8xl font-bold tracking-tight font-headline">
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight font-headline">
               Nick Shirley
             </h1>
           </Link>
-          <p className="mt-3 text-gray-600 font-sans text-base md:text-lg tracking-[0.2em] uppercase">
+          <p className="mt-3 text-gray-600 font-sans text-sm md:text-base tracking-[0.2em] uppercase">
             Independent Journalist
           </p>
         </div>
@@ -59,7 +59,7 @@ export default function Header() {
         <div className="max-w-[1600px] mx-auto px-4">
           {/* Mobile menu button */}
           <button
-            className="md:hidden w-full py-4 flex items-center justify-center gap-2 font-sans text-lg font-bold"
+            className="md:hidden w-full py-4 flex items-center justify-center gap-2 font-sans text-base font-bold"
             onClick={() => setMenuOpen(!menuOpen)}
           >
             <span>Menu</span>
@@ -75,7 +75,7 @@ export default function Header() {
 
           {/* Desktop navigation */}
           <ul className={`
-            md:flex md:justify-center md:gap-12 py-4 font-sans text-base md:text-lg font-bold uppercase tracking-wider
+            md:flex md:justify-center md:gap-12 py-4 font-sans text-sm md:text-base font-bold uppercase tracking-wider
             ${menuOpen ? 'block' : 'hidden md:flex'}
           `}>
             <li>
