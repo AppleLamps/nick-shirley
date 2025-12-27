@@ -1,23 +1,25 @@
 // XAI API integration for fetching X (Twitter) content
-// XAI's Grok can be used to search and analyze X posts
+// Uses xAI's agentic tool calling with x_search for real X posts
 
 const XAI_API_URL = 'https://api.x.ai/v1';
+const NICK_HANDLE = 'nickshirleyy';
 
-interface XAIMessage {
-  role: 'system' | 'user' | 'assistant';
-  content: string;
+interface XAIResponseOutput {
+  type: string;
+  content?: string;
+  text?: string;
 }
 
 interface XAIResponse {
   id: string;
-  choices: Array<{
-    message: {
-      content: string;
-    };
-  }>;
+  output: XAIResponseOutput[];
+  usage?: {
+    input_tokens: number;
+    output_tokens: number;
+  };
 }
 
-interface ParsedXPost {
+export interface ParsedXPost {
   post_id: string;
   content: string;
   author_username: string;
@@ -28,23 +30,32 @@ interface ParsedXPost {
   posted_at: string;
 }
 
-async function callXAI(messages: XAIMessage[]): Promise<string> {
+async function callXAIWithXSearch(prompt: string): Promise<string> {
   const apiKey = process.env.XAI_API_KEY;
 
   if (!apiKey || apiKey === 'your_xai_api_key_here') {
     throw new Error('XAI API key not configured');
   }
 
-  const response = await fetch(`${XAI_API_URL}/chat/completions`, {
+  const response = await fetch(`${XAI_API_URL}/responses`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: 'grok-beta',
-      messages,
-      temperature: 0.7,
+      model: 'grok-4-1-fast',
+      input: [
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+      tools: [
+        {
+          type: 'x_search',
+        },
+      ],
     }),
   });
 
@@ -54,37 +65,41 @@ async function callXAI(messages: XAIMessage[]): Promise<string> {
   }
 
   const data: XAIResponse = await response.json();
-  return data.choices[0]?.message?.content || '';
+
+  // Extract the text content from the response output
+  for (const output of data.output) {
+    if (output.type === 'message' && output.content) {
+      return output.content;
+    }
+    if (output.text) {
+      return output.text;
+    }
+  }
+
+  return '';
 }
 
 export async function fetchNickShirleyPosts(): Promise<ParsedXPost[]> {
   try {
-    const response = await callXAI([
-      {
-        role: 'system',
-        content: `You are a helpful assistant that searches X (Twitter) for recent posts.
-                  Return results as a JSON array with the exact structure specified.
-                  Only return the JSON, no other text.`,
-      },
-      {
-        role: 'user',
-        content: `Search for the 10 most recent posts from Nick Shirley (@nickshirley) on X.
-                  Return as JSON array with this exact structure:
-                  [
-                    {
-                      "post_id": "unique_id",
-                      "content": "post text content",
-                      "author_username": "nickshirley",
-                      "author_name": "Nick Shirley",
-                      "likes_count": 0,
-                      "retweets_count": 0,
-                      "replies_count": 0,
-                      "posted_at": "2024-01-01T00:00:00Z"
-                    }
-                  ]
-                  If you cannot find real posts, return an empty array [].`,
-      },
-    ]);
+    const response = await callXAIWithXSearch(
+      `Search X for the 10 most recent posts from @${NICK_HANDLE}.
+
+       Return the results as a JSON array with this exact structure (no other text, just the JSON):
+       [
+         {
+           "post_id": "the tweet id",
+           "content": "the full post text",
+           "author_username": "${NICK_HANDLE}",
+           "author_name": "Nick Shirley",
+           "likes_count": 0,
+           "retweets_count": 0,
+           "replies_count": 0,
+           "posted_at": "2024-01-01T00:00:00Z"
+         }
+       ]
+
+       If no posts are found, return an empty array [].`
+    );
 
     // Try to parse the JSON response
     const jsonMatch = response.match(/\[[\s\S]*\]/);
@@ -100,33 +115,31 @@ export async function fetchNickShirleyPosts(): Promise<ParsedXPost[]> {
 
 export async function fetchMentionsAboutNick(): Promise<ParsedXPost[]> {
   try {
-    const response = await callXAI([
-      {
-        role: 'system',
-        content: `You are a helpful assistant that searches X (Twitter) for posts mentioning someone.
-                  Return results as a JSON array with the exact structure specified.
-                  Only return the JSON, no other text.`,
-      },
-      {
-        role: 'user',
-        content: `Search for the 10 most recent posts on X that mention Nick Shirley or @nickshirley.
-                  Exclude posts by Nick Shirley himself.
-                  Return as JSON array with this exact structure:
-                  [
-                    {
-                      "post_id": "unique_id",
-                      "content": "post text content",
-                      "author_username": "someuser",
-                      "author_name": "Some User",
-                      "likes_count": 0,
-                      "retweets_count": 0,
-                      "replies_count": 0,
-                      "posted_at": "2024-01-01T00:00:00Z"
-                    }
-                  ]
-                  If you cannot find real posts, return an empty array [].`,
-      },
-    ]);
+    const response = await callXAIWithXSearch(
+      `Search X for posts that are currently TRENDING about Nick Shirley (@${NICK_HANDLE}).
+
+       Requirements:
+       - EXCLUDE any posts authored by @${NICK_HANDLE} himself
+       - ONLY include posts with 100+ likes (trending/viral posts)
+       - Focus on what people are saying ABOUT Nick, not Nick's own content
+       - Find up to 10 of the most popular/engaging posts mentioning him
+
+       Return the results as a JSON array with this exact structure (no other text, just the JSON):
+       [
+         {
+           "post_id": "the tweet id",
+           "content": "the full post text",
+           "author_username": "username",
+           "author_name": "Display Name",
+           "likes_count": 0,
+           "retweets_count": 0,
+           "replies_count": 0,
+           "posted_at": "2024-01-01T00:00:00Z"
+         }
+       ]
+
+       If no trending mentions are found with 100+ likes, return an empty array [].`
+    );
 
     // Try to parse the JSON response
     const jsonMatch = response.match(/\[[\s\S]*\]/);
@@ -141,20 +154,30 @@ export async function fetchMentionsAboutNick(): Promise<ParsedXPost[]> {
 }
 
 export async function getLatestNewsAboutNick(): Promise<string> {
+  const today = new Date();
+  const fiveDaysAgo = new Date(today.getTime() - 5 * 24 * 60 * 60 * 1000);
+  const dateRange = `${fiveDaysAgo.toISOString().split('T')[0]} to ${today.toISOString().split('T')[0]}`;
+
   try {
-    const response = await callXAI([
-      {
-        role: 'system',
-        content: `You are a knowledgeable assistant that provides updates about journalists and their work.`,
-      },
-      {
-        role: 'user',
-        content: `What are the latest updates about Nick Shirley, the independent journalist?
-                  What stories has he been covering recently?
-                  Where has he been traveling to report on current events?
-                  Provide a brief, factual summary.`,
-      },
-    ]);
+    const response = await callXAIWithXSearch(
+      `Today's date is ${today.toISOString().split('T')[0]}.
+
+       Search X for the latest updates about Nick Shirley (@${NICK_HANDLE}), the independent journalist, from the past 5 days (${dateRange}).
+
+       Your task:
+       1. What stories has Nick been covering in the past 5 days?
+       2. Where has he been traveling to report on current events?
+       3. What important journalism work has he done?
+
+       IMPORTANT PERSPECTIVE GUIDELINES:
+       - Nick Shirley is a respected independent journalist who does important on-the-ground reporting
+       - Present information in a way that is supportive of Nick and his journalism
+       - If you encounter posts that are critical or hostile toward Nick, identify them as such and explain the narrative or agenda the critic appears to be pushing
+       - Highlight Nick's courage, dedication, and commitment to truth in reporting
+       - Focus on the substance of his journalism and the stories he's bringing to light
+
+       Provide a factual but pro-Nick summary based on his recent posts and what people are saying about him.`
+    );
 
     return response;
   } catch (error) {

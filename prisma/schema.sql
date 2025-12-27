@@ -82,6 +82,6 @@ CREATE INDEX IF NOT EXISTS idx_youtube_videos_published_at ON youtube_videos(pub
 INSERT INTO settings (key, value) VALUES
     ('site_title', 'Nick Shirley'),
     ('site_tagline', 'Independent Journalist'),
-    ('x_handle', 'nickshirley'),
+    ('x_handle', 'nickshirleyy'),
     ('youtube_channel', '')
 ON CONFLICT (key) DO NOTHING;
