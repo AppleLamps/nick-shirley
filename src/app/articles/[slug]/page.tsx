@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import { getArticleBySlug } from '@/lib/db';
 import YouTubeEmbed from '@/components/YouTubeEmbed';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export const dynamic = 'force-dynamic';
 
@@ -240,7 +241,7 @@ export default async function ArticlePage({ params }: Props) {
 
       {/* Article Content */}
       <div className="article-content prose prose-base max-w-none font-serif">
-        <ReactMarkdown>{article.content}</ReactMarkdown>
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>{article.content}</ReactMarkdown>
       </div>
 
       {/* Source Link */}
