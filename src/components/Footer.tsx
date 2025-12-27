@@ -86,8 +86,8 @@ export default function Footer() {
         <div className="border-t border-gray-200 mt-12 pt-8 text-center">
           <p className="font-sans text-xs text-gray-500">
             &copy; {currentYear} Nick Shirley. All rights reserved.
-            <AdminPanel />
           </p>
+          <AdminPanel />
         </div>
       </div>
     </footer>

@@ -9,7 +9,6 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@distube/ytdl-core": "^4.16.12",
     "@neondatabase/serverless": "^1.0.2",
     "@prisma/client": "^7.2.0",
     "date-fns": "^4.1.0",
@@ -18,7 +17,8 @@
     "next": "16.1.1",
     "openai": "^6.15.0",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "youtubei.js": "^16.0.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

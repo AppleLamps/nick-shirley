@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import ytdl from '@distube/ytdl-core';
+import { Innertube } from 'youtubei.js';
 import OpenAI, { toFile } from 'openai';
 import { getTranscript, saveTranscript } from '@/lib/db';
 import ffmpeg from 'fluent-ffmpeg';
@@ -75,7 +75,6 @@ async function transcribeChunk(
     response_format: 'verbose_json',
   } as Parameters<typeof openai.audio.transcriptions.create>[0])) as TranscriptResponse;
 
-  // Adjust timestamps with offset and add default speaker
   return (
     transcription.segments?.map((segment) => ({
       speaker: segment.speaker || 'Speaker',
@@ -122,12 +121,11 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // Create temp directory for this request
   const tempDir = path.join(os.tmpdir(), `transcript_${videoId}_${Date.now()}`);
-  const audioPath = path.join(tempDir, 'audio.mp4');
+  const audioPath = path.join(tempDir, 'audio.webm');
 
   try {
-    // Check if we have a cached transcript
+    // Check cache first
     const cachedTranscript = await getTranscript(videoId);
     if (cachedTranscript) {
       console.log(`Serving cached transcript for video: ${videoId}`);
@@ -140,7 +138,6 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // No cache, need to transcribe
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
@@ -149,32 +146,72 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
+    // Create YouTube client
+    const youtube = await Innertube.create();
 
-    // Get video info to check duration
-    const info = await ytdl.getInfo(videoUrl);
-    const durationSeconds = parseInt(info.videoDetails.lengthSeconds);
+    // Get full video info with streaming data
+    const info = await youtube.getInfo(videoId);
+    const durationSeconds = info.basic_info.duration || 0;
+    const videoTitle = info.basic_info.title || 'Unknown';
 
-    console.log(
-      `Processing video: ${info.videoDetails.title} (${durationSeconds}s)`
+    console.log(`Processing video: ${videoTitle} (${durationSeconds}s)`);
+
+    // Get streaming data
+    const streamingData = info.streaming_data;
+    if (!streamingData) {
+      throw new Error('No streaming data available for this video');
+    }
+
+    // Find audio-only format from adaptive formats
+    const adaptiveFormats = streamingData.adaptive_formats || [];
+    const audioFormat = adaptiveFormats.find(
+      (f) => f.mime_type?.startsWith('audio/') && f.url
     );
 
-    // Create temp directory
-    fs.mkdirSync(tempDir, { recursive: true });
+    if (!audioFormat || !audioFormat.url) {
+      // Try to decipher if URL not directly available
+      const formatWithDecipher = adaptiveFormats.find(
+        (f) => f.mime_type?.startsWith('audio/')
+      );
 
-    // Download audio to temp file
-    const audioStream = ytdl(videoUrl, {
-      filter: 'audioonly',
-      quality: 'lowestaudio',
-    });
+      if (!formatWithDecipher) {
+        throw new Error('No audio format available for this video');
+      }
 
-    const writeStream = fs.createWriteStream(audioPath);
-    await new Promise<void>((resolve, reject) => {
-      audioStream.pipe(writeStream);
-      writeStream.on('finish', resolve);
-      writeStream.on('error', reject);
-      audioStream.on('error', reject);
-    });
+      // Get the deciphered URL
+      const decipheredUrl = formatWithDecipher.decipher(youtube.session.player);
+      if (!decipheredUrl) {
+        throw new Error('Could not decipher audio URL');
+      }
+
+      console.log(`Using deciphered URL for format: ${formatWithDecipher.mime_type}`);
+
+      // Create temp directory
+      fs.mkdirSync(tempDir, { recursive: true });
+
+      // Download audio from deciphered URL
+      const response = await fetch(decipheredUrl);
+      if (!response.ok) {
+        throw new Error(`Failed to download audio: ${response.status}`);
+      }
+
+      const arrayBuffer = await response.arrayBuffer();
+      fs.writeFileSync(audioPath, Buffer.from(arrayBuffer));
+    } else {
+      console.log(`Using direct URL for format: ${audioFormat.mime_type}`);
+
+      // Create temp directory
+      fs.mkdirSync(tempDir, { recursive: true });
+
+      // Download audio from direct URL
+      const response = await fetch(audioFormat.url);
+      if (!response.ok) {
+        throw new Error(`Failed to download audio: ${response.status}`);
+      }
+
+      const arrayBuffer = await response.arrayBuffer();
+      fs.writeFileSync(audioPath, Buffer.from(arrayBuffer));
+    }
 
     const audioStats = fs.statSync(audioPath);
     const fileSizeMB = audioStats.size / 1024 / 1024;
@@ -186,12 +223,10 @@ export async function GET(request: NextRequest) {
     let segments: DiarizedSegment[];
 
     if (audioStats.size <= MAX_FILE_SIZE) {
-      // File is small enough, transcribe directly with diarization
       console.log('File size within limit, transcribing with diarization...');
       const audioBuffer = fs.readFileSync(audioPath);
       segments = await transcribeWithDiarization(openai, audioBuffer);
     } else {
-      // File too large, need to chunk
       console.log(
         `File exceeds ${MAX_FILE_SIZE / 1024 / 1024}MB, splitting into chunks...`
       );
@@ -218,33 +253,29 @@ export async function GET(request: NextRequest) {
         );
         segments.push(...chunkSegments);
 
-        // Clean up chunk file
         fs.unlinkSync(chunkPath);
       }
 
-      // Sort segments by start time (in case of any overlap issues)
       segments.sort((a, b) => a.start - b.start);
     }
 
-    // Create full text with speaker labels
     const fullText = segments
       .map((s) => `[${s.speaker}]: ${s.text}`)
       .join('\n\n');
 
-    // Save to cache
     await saveTranscript(videoId, fullText, segments, durationSeconds);
     console.log(`Saved transcript to cache for video: ${videoId}`);
 
-    // Cleanup temp directory
+    // Cleanup
     try {
       fs.rmSync(tempDir, { recursive: true, force: true });
     } catch {
-      // Ignore cleanup errors
+      // Ignore
     }
 
     return NextResponse.json({
       videoId,
-      title: info.videoDetails.title,
+      title: videoTitle,
       duration: durationSeconds,
       fullText,
       segments,
@@ -252,21 +283,20 @@ export async function GET(request: NextRequest) {
       chunked: audioStats.size > MAX_FILE_SIZE,
     });
   } catch (error) {
-    // Cleanup temp directory on error
+    // Cleanup on error
     try {
       if (fs.existsSync(tempDir)) {
         fs.rmSync(tempDir, { recursive: true, force: true });
       }
     } catch {
-      // Ignore cleanup errors
+      // Ignore
     }
 
     console.error('Error transcribing video:', error);
 
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
-    // Handle specific errors
-    if (errorMessage.includes('Video unavailable')) {
+    if (errorMessage.includes('Video unavailable') || errorMessage.includes('private')) {
       return NextResponse.json(
         { error: 'Video is unavailable or private.' },
         { status: 404 }

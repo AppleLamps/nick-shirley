@@ -1,5 +1,4 @@
 import XFeed from '@/components/XFeed';
-import TwitterEmbed from '@/components/TwitterEmbed';
 
 export const metadata = {
   title: 'Live Feed | Nick Shirley',
@@ -22,31 +21,21 @@ export default function LiveFeedPage() {
 
       {/* Feeds Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Nick's Posts - Twitter Embed */}
-        <div>
-          <div className="mb-4">
-            <h2 className="font-sans font-bold text-lg">Nick&apos;s Posts</h2>
-            <p className="text-gray-500 text-sm font-sans">
-              Latest posts from @nickshirleyy
-            </p>
-          </div>
-          <TwitterEmbed username="nickshirleyy" height={600} />
-        </div>
+        {/* Nick's Popular Posts */}
+        <XFeed
+          type="posts"
+          title="Nick's Popular Posts (Past 5 Days)"
+          refreshInterval={30 * 60 * 1000}
+          maxHeight={550}
+        />
 
         {/* Mentions */}
-        <div>
-          <div className="mb-4">
-            <h2 className="font-sans font-bold text-lg">Mentions & Discussion</h2>
-            <p className="text-gray-500 text-sm font-sans">
-              What people are saying about Nick
-            </p>
-          </div>
-          <XFeed
-            type="mentions"
-            title="Mentions"
-            refreshInterval={30 * 60 * 1000}
-          />
-        </div>
+        <XFeed
+          type="mentions"
+          title="What People Are Saying"
+          refreshInterval={30 * 60 * 1000}
+          maxHeight={550}
+        />
       </div>
 
       {/* Info Section */}

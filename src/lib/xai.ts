@@ -35,11 +35,28 @@ export interface ParsedXPost {
   posted_at: string;
 }
 
-async function callXAIWithXSearch(prompt: string): Promise<string> {
+interface XSearchOptions {
+  fromDate?: string; // YYYY-MM-DD format
+  toDate?: string;   // YYYY-MM-DD format
+}
+
+async function callXAIWithXSearch(prompt: string, options?: XSearchOptions): Promise<string> {
   const apiKey = process.env.XAI_API_KEY;
 
   if (!apiKey || apiKey === 'your_xai_api_key_here') {
     throw new Error('XAI API key not configured');
+  }
+
+  // Build the x_search tool with optional date filtering
+  const xSearchTool: Record<string, unknown> = {
+    type: 'x_search',
+  };
+
+  if (options?.fromDate) {
+    xSearchTool.fromDate = options.fromDate;
+  }
+  if (options?.toDate) {
+    xSearchTool.toDate = options.toDate;
   }
 
   const response = await fetch(`${XAI_API_URL}/responses`, {
@@ -56,11 +73,7 @@ async function callXAIWithXSearch(prompt: string): Promise<string> {
           content: prompt,
         },
       ],
-      tools: [
-        {
-          type: 'x_search',
-        },
-      ],
+      tools: [xSearchTool],
     }),
   });
 
@@ -70,9 +83,6 @@ async function callXAIWithXSearch(prompt: string): Promise<string> {
   }
 
   const data: XAIResponse = await response.json();
-
-  // Debug log to see the structure
-  console.log('xAI response structure:', JSON.stringify(data, null, 2));
 
   // Extract the text content from the response output
   for (const output of data.output) {
@@ -84,7 +94,7 @@ async function callXAIWithXSearch(prompt: string): Promise<string> {
       // Handle array of content blocks
       if (Array.isArray(output.content)) {
         const textParts = output.content
-          .filter((block) => block.type === 'text' && block.text)
+          .filter((block) => (block.type === 'text' || block.type === 'output_text') && block.text)
           .map((block) => block.text)
           .join('');
         if (textParts) {
@@ -101,10 +111,26 @@ async function callXAIWithXSearch(prompt: string): Promise<string> {
   return '';
 }
 
+function getDateRange(daysAgo: number): { fromDate: string; toDate: string } {
+  const today = new Date();
+  const pastDate = new Date(today.getTime() - daysAgo * 24 * 60 * 60 * 1000);
+  return {
+    fromDate: pastDate.toISOString().split('T')[0],
+    toDate: today.toISOString().split('T')[0],
+  };
+}
+
 export async function fetchNickShirleyPosts(): Promise<ParsedXPost[]> {
+  const { fromDate, toDate } = getDateRange(5);
+
   try {
     const response = await callXAIWithXSearch(
-      `Search X for the 10 most recent posts from @${NICK_HANDLE}.
+      `Search X for the most POPULAR posts from @${NICK_HANDLE}.
+
+       Requirements:
+       - Sort by engagement (likes + retweets) - most popular first
+       - Return up to 10 of the most engaging/popular posts
+       - Include accurate engagement metrics (likes, retweets, replies)
 
        Return the results as a JSON array with this exact structure (no other text, just the JSON):
        [
@@ -120,7 +146,8 @@ export async function fetchNickShirleyPosts(): Promise<ParsedXPost[]> {
          }
        ]
 
-       If no posts are found, return an empty array [].`
+       If no posts are found, return an empty array [].`,
+      { fromDate, toDate }
     );
 
     // Ensure response is a string
@@ -132,7 +159,13 @@ export async function fetchNickShirleyPosts(): Promise<ParsedXPost[]> {
     // Try to parse the JSON response
     const jsonMatch = response.match(/\[[\s\S]*\]/);
     if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]) as ParsedXPost[];
+      // Sanitize JSON - remove control characters that can break parsing
+      const sanitizedJson = jsonMatch[0]
+        .replace(/[\x00-\x1F\x7F]/g, ' ') // Replace control characters with space
+        .replace(/\n/g, ' ')              // Replace newlines
+        .replace(/\r/g, ' ')              // Replace carriage returns
+        .replace(/\t/g, ' ');             // Replace tabs
+      return JSON.parse(sanitizedJson) as ParsedXPost[];
     }
     return [];
   } catch (error) {
@@ -142,15 +175,18 @@ export async function fetchNickShirleyPosts(): Promise<ParsedXPost[]> {
 }
 
 export async function fetchMentionsAboutNick(): Promise<ParsedXPost[]> {
+  const { fromDate, toDate } = getDateRange(5);
+
   try {
     const response = await callXAIWithXSearch(
-      `Search X for posts that are currently TRENDING about Nick Shirley (@${NICK_HANDLE}).
+      `Search X for the most POPULAR posts about Nick Shirley (@${NICK_HANDLE}).
 
        Requirements:
        - EXCLUDE any posts authored by @${NICK_HANDLE} himself
-       - ONLY include posts with 100+ likes (trending/viral posts)
+       - ONLY include posts with 100+ likes (popular/viral posts)
        - Focus on what people are saying ABOUT Nick, not Nick's own content
-       - Find up to 10 of the most popular/engaging posts mentioning him
+       - Sort by engagement - find the most popular posts mentioning him
+       - Return up to 10 of the most engaging posts
 
        Return the results as a JSON array with this exact structure (no other text, just the JSON):
        [
@@ -166,7 +202,8 @@ export async function fetchMentionsAboutNick(): Promise<ParsedXPost[]> {
          }
        ]
 
-       If no trending mentions are found with 100+ likes, return an empty array [].`
+       If no popular mentions are found with 100+ likes, return an empty array [].`,
+      { fromDate, toDate }
     );
 
     // Ensure response is a string
@@ -178,7 +215,13 @@ export async function fetchMentionsAboutNick(): Promise<ParsedXPost[]> {
     // Try to parse the JSON response
     const jsonMatch = response.match(/\[[\s\S]*\]/);
     if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]) as ParsedXPost[];
+      // Sanitize JSON - remove control characters that can break parsing
+      const sanitizedJson = jsonMatch[0]
+        .replace(/[\x00-\x1F\x7F]/g, ' ') // Replace control characters with space
+        .replace(/\n/g, ' ')              // Replace newlines
+        .replace(/\r/g, ' ')              // Replace carriage returns
+        .replace(/\t/g, ' ');             // Replace tabs
+      return JSON.parse(sanitizedJson) as ParsedXPost[];
     }
     return [];
   } catch (error) {
@@ -188,18 +231,14 @@ export async function fetchMentionsAboutNick(): Promise<ParsedXPost[]> {
 }
 
 export async function getLatestNewsAboutNick(): Promise<string> {
-  const today = new Date();
-  const fiveDaysAgo = new Date(today.getTime() - 5 * 24 * 60 * 60 * 1000);
-  const dateRange = `${fiveDaysAgo.toISOString().split('T')[0]} to ${today.toISOString().split('T')[0]}`;
+  const { fromDate, toDate } = getDateRange(5);
 
   try {
     const response = await callXAIWithXSearch(
-      `Today's date is ${today.toISOString().split('T')[0]}.
-
-       Search X for the latest updates about Nick Shirley (@${NICK_HANDLE}), the independent journalist, from the past 5 days (${dateRange}).
+      `Search X for the latest updates about Nick Shirley (@${NICK_HANDLE}), the independent journalist.
 
        Your task:
-       1. What stories has Nick been covering in the past 5 days?
+       1. What stories has Nick been covering recently?
        2. Where has he been traveling to report on current events?
        3. What important journalism work has he done?
 
@@ -210,7 +249,8 @@ export async function getLatestNewsAboutNick(): Promise<string> {
        - Highlight Nick's courage, dedication, and commitment to truth in reporting
        - Focus on the substance of his journalism and the stories he's bringing to light
 
-       Provide a factual but pro-Nick summary based on his recent posts and what people are saying about him.`
+       Provide a factual but pro-Nick summary based on his recent posts and what people are saying about him.`,
+      { fromDate, toDate }
     );
 
     // Ensure response is a string

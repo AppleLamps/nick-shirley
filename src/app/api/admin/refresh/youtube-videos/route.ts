@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { upsertYouTubeVideo } from '@/lib/db';
+import { clearYouTubeVideos, upsertYouTubeVideo } from '@/lib/db';
 import { fetchYouTubeVideos } from '@/lib/youtube';
 
 export const dynamic = 'force-dynamic';
@@ -17,6 +17,9 @@ export async function POST() {
         count: 0,
       });
     }
+
+    // Replace cache to avoid old Shorts/livestream rows persisting
+    await clearYouTubeVideos();
 
     // Store them in the database
     for (const video of freshVideos) {

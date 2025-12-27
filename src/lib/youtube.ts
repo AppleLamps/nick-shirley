@@ -22,6 +22,7 @@ interface YouTubeSearchItem {
     title: string;
     description: string;
     publishedAt: string;
+    liveBroadcastContent?: 'none' | 'live' | 'upcoming';
     thumbnails: {
       high?: { url: string };
       medium?: { url: string };
@@ -36,6 +37,7 @@ interface YouTubeVideoItem {
     title: string;
     description: string;
     publishedAt: string;
+    liveBroadcastContent?: 'none' | 'live' | 'upcoming';
     thumbnails: {
       high?: { url: string };
       medium?: { url: string };
@@ -48,6 +50,12 @@ interface YouTubeVideoItem {
   };
   contentDetails: {
     duration: string;
+  };
+  liveStreamingDetails?: {
+    actualStartTime?: string;
+    actualEndTime?: string;
+    scheduledStartTime?: string;
+    scheduledEndTime?: string;
   };
 }
 
@@ -64,6 +72,15 @@ function parseDuration(isoDuration: string): string {
     return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   }
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+function parseDurationSeconds(isoDuration: string): number {
+  const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+  if (!match) return 0;
+  const hours = parseInt(match[1] || '0', 10);
+  const minutes = parseInt(match[2] || '0', 10);
+  const seconds = parseInt(match[3] || '0', 10);
+  return hours * 3600 + minutes * 60 + seconds;
 }
 
 async function getChannelId(apiKey: string): Promise<string | null> {
@@ -101,9 +118,11 @@ export async function fetchYouTubeVideos(limit = 5): Promise<YouTubeVideoData[]>
       return [];
     }
 
-    // Search for videos from this channel
+    // Search for recent videos from this channel.
+    // We intentionally over-fetch here so we can filter out Shorts and livestreams.
+    const maxResults = Math.min(50, Math.max(limit * 10, limit));
     const searchResponse = await fetch(
-      `${YOUTUBE_API_URL}/search?part=snippet&channelId=${channelId}&order=date&type=video&maxResults=${limit}&key=${apiKey}`
+      `${YOUTUBE_API_URL}/search?part=snippet&channelId=${channelId}&order=date&type=video&maxResults=${maxResults}&key=${apiKey}`
     );
 
     if (!searchResponse.ok) {
@@ -112,15 +131,25 @@ export async function fetchYouTubeVideos(limit = 5): Promise<YouTubeVideoData[]>
     }
 
     const searchData = await searchResponse.json();
-    const videoIds = searchData.items?.map((item: YouTubeSearchItem) => item.id.videoId).join(',');
+    const searchItems: YouTubeSearchItem[] = searchData.items || [];
+
+    // Drop currently-live / upcoming live streams early (still keep VOD filtering below).
+    const nonLiveSearchItems = searchItems.filter(
+      (item) => item?.snippet?.liveBroadcastContent !== 'live' && item?.snippet?.liveBroadcastContent !== 'upcoming'
+    );
+
+    const videoIds = nonLiveSearchItems
+      .map((item) => item.id.videoId)
+      .filter(Boolean)
+      .join(',');
 
     if (!videoIds) {
       return [];
     }
 
-    // Get detailed video info including statistics and duration
+    // Get detailed video info including statistics, duration, and live metadata
     const videosResponse = await fetch(
-      `${YOUTUBE_API_URL}/videos?part=snippet,statistics,contentDetails&id=${videoIds}&key=${apiKey}`
+      `${YOUTUBE_API_URL}/videos?part=snippet,statistics,contentDetails,liveStreamingDetails&id=${videoIds}&key=${apiKey}`
     );
 
     if (!videosResponse.ok) {
@@ -130,18 +159,41 @@ export async function fetchYouTubeVideos(limit = 5): Promise<YouTubeVideoData[]>
 
     const videosData = await videosResponse.json();
 
-    return videosData.items?.map((video: YouTubeVideoItem) => ({
-      video_id: video.id,
-      title: video.snippet.title,
-      description: video.snippet.description,
-      thumbnail_url: video.snippet.thumbnails.high?.url ||
-                     video.snippet.thumbnails.medium?.url ||
-                     video.snippet.thumbnails.default?.url || '',
-      published_at: video.snippet.publishedAt,
-      view_count: parseInt(video.statistics.viewCount || '0'),
-      like_count: parseInt(video.statistics.likeCount || '0'),
-      duration: parseDuration(video.contentDetails.duration),
-    })) || [];
+    const items: YouTubeVideoItem[] = videosData.items || [];
+
+    // Filter out Shorts and livestreams/replays
+    const filtered = items
+      .filter((video) => {
+        const durationSeconds = parseDurationSeconds(video.contentDetails?.duration || '');
+        const isShort = durationSeconds > 0 && durationSeconds <= 60;
+        const isLiveOrUpcoming =
+          video.snippet?.liveBroadcastContent === 'live' ||
+          video.snippet?.liveBroadcastContent === 'upcoming';
+        const isLivestreamReplay = Boolean(video.liveStreamingDetails);
+
+        return !isShort && !isLiveOrUpcoming && !isLivestreamReplay;
+      })
+      .sort(
+        (a, b) =>
+          new Date(b.snippet.publishedAt).getTime() - new Date(a.snippet.publishedAt).getTime()
+      )
+      .slice(0, limit)
+      .map((video) => ({
+        video_id: video.id,
+        title: video.snippet.title,
+        description: video.snippet.description,
+        thumbnail_url:
+          video.snippet.thumbnails.high?.url ||
+          video.snippet.thumbnails.medium?.url ||
+          video.snippet.thumbnails.default?.url ||
+          '',
+        published_at: video.snippet.publishedAt,
+        view_count: parseInt(video.statistics.viewCount || '0', 10),
+        like_count: parseInt(video.statistics.likeCount || '0', 10),
+        duration: parseDuration(video.contentDetails.duration),
+      }));
+
+    return filtered;
 
   } catch (error) {
     console.error('Error fetching YouTube videos:', error);

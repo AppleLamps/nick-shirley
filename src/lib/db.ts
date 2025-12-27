@@ -126,10 +126,37 @@ export async function getXMentions(limit = 20): Promise<XMention[]> {
   return result as XMention[];
 }
 
+export async function getLastFetchedAtForXPosts(): Promise<Date | null> {
+  const result = await sql`
+    SELECT MAX(fetched_at) AS fetched_at
+    FROM x_posts
+  `;
+  const fetchedAt = result[0]?.fetched_at;
+  return fetchedAt ? new Date(fetchedAt) : null;
+}
+
+export async function getLastFetchedAtForXMentions(): Promise<Date | null> {
+  const result = await sql`
+    SELECT MAX(fetched_at) AS fetched_at
+    FROM x_mentions
+  `;
+  const fetchedAt = result[0]?.fetched_at;
+  return fetchedAt ? new Date(fetchedAt) : null;
+}
+
+export async function getLastFetchedAtForYouTubeVideos(): Promise<Date | null> {
+  const result = await sql`
+    SELECT MAX(fetched_at) AS fetched_at
+    FROM youtube_videos
+  `;
+  const fetchedAt = result[0]?.fetched_at;
+  return fetchedAt ? new Date(fetchedAt) : null;
+}
+
 export async function upsertXPost(post: Omit<XPost, 'id' | 'fetched_at'>): Promise<void> {
   await sql`
-    INSERT INTO x_posts (post_id, content, author_username, author_name, author_avatar, likes_count, retweets_count, replies_count, media_urls, posted_at)
-    VALUES (${post.post_id}, ${post.content}, ${post.author_username}, ${post.author_name}, ${post.author_avatar}, ${post.likes_count}, ${post.retweets_count}, ${post.replies_count}, ${post.media_urls}, ${post.posted_at})
+    INSERT INTO x_posts (post_id, content, author_username, author_name, author_avatar, likes_count, retweets_count, replies_count, media_urls, posted_at, fetched_at)
+    VALUES (${post.post_id}, ${post.content}, ${post.author_username}, ${post.author_name}, ${post.author_avatar}, ${post.likes_count}, ${post.retweets_count}, ${post.replies_count}, ${post.media_urls}, ${post.posted_at}, CURRENT_TIMESTAMP)
     ON CONFLICT (post_id)
     DO UPDATE SET
       content = EXCLUDED.content,
@@ -142,8 +169,8 @@ export async function upsertXPost(post: Omit<XPost, 'id' | 'fetched_at'>): Promi
 
 export async function upsertXMention(mention: Omit<XMention, 'id' | 'fetched_at'>): Promise<void> {
   await sql`
-    INSERT INTO x_mentions (post_id, content, author_username, author_name, author_avatar, likes_count, retweets_count, replies_count, posted_at)
-    VALUES (${mention.post_id}, ${mention.content}, ${mention.author_username}, ${mention.author_name}, ${mention.author_avatar}, ${mention.likes_count}, ${mention.retweets_count}, ${mention.replies_count}, ${mention.posted_at})
+    INSERT INTO x_mentions (post_id, content, author_username, author_name, author_avatar, likes_count, retweets_count, replies_count, posted_at, fetched_at)
+    VALUES (${mention.post_id}, ${mention.content}, ${mention.author_username}, ${mention.author_name}, ${mention.author_avatar}, ${mention.likes_count}, ${mention.retweets_count}, ${mention.replies_count}, ${mention.posted_at}, CURRENT_TIMESTAMP)
     ON CONFLICT (post_id)
     DO UPDATE SET
       content = EXCLUDED.content,
@@ -163,10 +190,16 @@ export async function getYouTubeVideos(limit = 5): Promise<YouTubeVideo[]> {
   return result as YouTubeVideo[];
 }
 
+export async function clearYouTubeVideos(): Promise<void> {
+  await sql`
+    DELETE FROM youtube_videos
+  `;
+}
+
 export async function upsertYouTubeVideo(video: Omit<YouTubeVideo, 'id' | 'fetched_at'>): Promise<void> {
   await sql`
-    INSERT INTO youtube_videos (video_id, title, description, thumbnail_url, published_at, view_count, like_count)
-    VALUES (${video.video_id}, ${video.title}, ${video.description}, ${video.thumbnail_url}, ${video.published_at}, ${video.view_count}, ${video.like_count})
+    INSERT INTO youtube_videos (video_id, title, description, thumbnail_url, published_at, view_count, like_count, fetched_at)
+    VALUES (${video.video_id}, ${video.title}, ${video.description}, ${video.thumbnail_url}, ${video.published_at}, ${video.view_count}, ${video.like_count}, CURRENT_TIMESTAMP)
     ON CONFLICT (video_id)
     DO UPDATE SET
       title = EXCLUDED.title,

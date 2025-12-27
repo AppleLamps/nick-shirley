@@ -58,7 +58,7 @@ export default function AdminPanel() {
           [type]: { loading: false, success: false, message: data.error || 'Failed' }
         }));
       }
-    } catch (err) {
+    } catch {
       setRefreshStatus(prev => ({
         ...prev,
         [type]: { loading: false, success: false, message: 'Network error' }

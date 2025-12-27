@@ -130,19 +130,21 @@ export default async function Home() {
         </div>
 
         {/* Sidebar with Live Feeds */}
-        <div className="lg:col-span-1 space-y-8">
-          {/* Nick's Posts Feed */}
+        <div className="lg:col-span-1 space-y-6">
+          {/* Nick's Popular Posts */}
           <XFeed
             type="posts"
-            title="Nick's Latest Posts"
-            refreshInterval={5 * 60 * 1000}
+            title="Nick's Popular Posts"
+            refreshInterval={30 * 60 * 1000}
+            maxHeight={400}
           />
 
           {/* Mentions Feed */}
           <XFeed
             type="mentions"
             title="What People Are Saying"
-            refreshInterval={5 * 60 * 1000}
+            refreshInterval={30 * 60 * 1000}
+            maxHeight={400}
           />
         </div>
       </div>
@@ -181,7 +183,7 @@ export default async function Home() {
               YouTube
             </a>
             <a
-              href="https://x.com/nickshirley"
+              href="https://x.com/nickshirleyy"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 border-2 border-black px-6 py-3 hover:bg-black hover:text-white transition-colors font-sans text-sm font-bold"

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 
 interface VideoCardProps {
   video: {
@@ -181,15 +182,17 @@ export default function VideoCard({ video }: VideoCardProps) {
         >
           <div className="relative aspect-video bg-gray-200 mb-4 overflow-hidden">
             {video.thumbnail_url ? (
-              <img
+              <Image
                 src={video.thumbnail_url}
                 alt={video.title}
-                className="w-full h-full object-cover"
+                fill
+                sizes="(max-width: 768px) 100vw, 33vw"
+                className="object-cover"
               />
             ) : (
               <div className="absolute inset-0 flex items-center justify-center bg-gray-300">
                 <svg className="w-16 h-16 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z"/>
+                  <path d="M8 5v14l11-7z" />
                 </svg>
               </div>
             )}
@@ -197,7 +200,7 @@ export default function VideoCard({ video }: VideoCardProps) {
             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
               <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
                 <svg className="w-8 h-8 text-black ml-1" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z"/>
+                  <path d="M8 5v14l11-7z" />
                 </svg>
               </div>
             </div>
@@ -257,21 +260,19 @@ export default function VideoCard({ video }: VideoCardProps) {
             <div className="flex border-b border-gray-200">
               <button
                 onClick={() => handleTabChange('summary')}
-                className={`flex-1 py-3 text-sm font-medium ${
-                  activeTab === 'summary'
+                className={`flex-1 py-3 text-sm font-medium ${activeTab === 'summary'
                     ? 'text-black border-b-2 border-black'
                     : 'text-gray-500 hover:text-black'
-                }`}
+                  }`}
               >
                 What is this video about?
               </button>
               <button
                 onClick={() => handleTabChange('transcript')}
-                className={`flex-1 py-3 text-sm font-medium ${
-                  activeTab === 'transcript'
+                className={`flex-1 py-3 text-sm font-medium ${activeTab === 'transcript'
                     ? 'text-black border-b-2 border-black'
                     : 'text-gray-500 hover:text-black'
-                }`}
+                  }`}
               >
                 Full Transcript
               </button>
