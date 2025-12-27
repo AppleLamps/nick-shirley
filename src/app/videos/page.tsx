@@ -25,8 +25,8 @@ export default async function VideosPage() {
     <div className="max-w-[1600px] mx-auto px-4 py-12">
       {/* Page Header */}
       <div className="border-t-4 border-black pt-8 mb-12">
-        <h1 className="text-6xl font-bold mb-4 font-headline">Videos</h1>
-        <p className="text-xl text-gray-600 font-sans">
+        <h1 className="text-3xl font-bold mb-3 font-headline">Videos</h1>
+        <p className="text-base text-gray-600 font-sans">
           Documentaries, reports, and behind-the-scenes content from the field.
         </p>
       </div>
@@ -41,8 +41,8 @@ export default async function VideosPage() {
               </svg>
             </div>
             <div>
-              <h2 className="font-bold text-2xl mb-1">Subscribe on YouTube</h2>
-              <p className="font-sans text-base text-gray-500">
+              <h2 className="font-bold text-lg mb-1">Subscribe on YouTube</h2>
+              <p className="font-sans text-sm text-gray-500">
                 Get notified when new videos are published
               </p>
             </div>
@@ -51,7 +51,7 @@ export default async function VideosPage() {
             href="https://youtube.com/@NickShirley"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-3 bg-red-600 text-white px-8 py-4 font-sans text-base font-bold hover:bg-red-700 transition-colors"
+            className="inline-flex items-center gap-2 bg-red-600 text-white px-6 py-3 font-sans text-sm font-bold hover:bg-red-700 transition-colors"
           >
             Subscribe
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -73,12 +73,12 @@ export default async function VideosPage() {
           <svg className="w-20 h-20 text-gray-300 mx-auto mb-6" fill="currentColor" viewBox="0 0 24 24">
             <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
           </svg>
-          <p className="text-gray-500 font-sans mb-6 text-xl">No videos available yet</p>
+          <p className="text-gray-500 font-sans mb-6 text-base">No videos available yet</p>
           <a
             href="https://youtube.com/@NickShirley"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-black hover:underline font-sans text-lg"
+            className="inline-flex items-center gap-2 text-black hover:underline font-sans text-sm"
           >
             Visit the YouTube channel
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -94,7 +94,7 @@ export default async function VideosPage() {
           href="https://youtube.com/@NickShirley"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-3 border-2 border-black px-10 py-5 font-sans text-base font-bold hover:bg-black hover:text-white transition-colors"
+          className="inline-flex items-center gap-2 border-2 border-black px-6 py-3 font-sans text-sm font-bold hover:bg-black hover:text-white transition-colors"
         >
           View All Videos on YouTube
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -105,34 +105,34 @@ export default async function VideosPage() {
 
       {/* Related Links */}
       <div className="mt-24 pt-12 border-t border-gray-200">
-        <h2 className="font-sans font-bold text-lg uppercase tracking-wider mb-8">
+        <h2 className="font-sans font-bold text-sm uppercase tracking-wider mb-8">
           More Content
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <Link
             href="/articles"
-            className="block p-8 border border-gray-200 hover:border-black transition-colors"
+            className="block p-6 border border-gray-200 hover:border-black transition-colors"
           >
-            <h3 className="font-bold text-xl mb-3">Articles</h3>
-            <p className="text-gray-600 text-base font-sans">
+            <h3 className="font-bold text-base mb-2">Articles</h3>
+            <p className="text-gray-600 text-sm font-sans">
               Written reports, analysis, and commentary
             </p>
           </Link>
           <Link
             href="/live-feed"
-            className="block p-8 border border-gray-200 hover:border-black transition-colors"
+            className="block p-6 border border-gray-200 hover:border-black transition-colors"
           >
-            <h3 className="font-bold text-xl mb-3">Live Feed</h3>
-            <p className="text-gray-600 text-base font-sans">
+            <h3 className="font-bold text-base mb-2">Live Feed</h3>
+            <p className="text-gray-600 text-sm font-sans">
               Real-time updates from X
             </p>
           </Link>
           <Link
             href="/about"
-            className="block p-8 border border-gray-200 hover:border-black transition-colors"
+            className="block p-6 border border-gray-200 hover:border-black transition-colors"
           >
-            <h3 className="font-bold text-xl mb-3">About Nick</h3>
-            <p className="text-gray-600 text-base font-sans">
+            <h3 className="font-bold text-base mb-2">About Nick</h3>
+            <p className="text-gray-600 text-sm font-sans">
               Learn more about the journalist
             </p>
           </Link>

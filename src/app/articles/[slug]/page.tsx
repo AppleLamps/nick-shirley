@@ -177,7 +177,7 @@ export default async function ArticlePage({ params }: Props) {
   return (
     <article className="max-w-[1000px] mx-auto px-4 py-12">
       {/* Breadcrumb */}
-      <nav className="mb-12 font-sans text-base text-gray-500">
+      <nav className="mb-8 font-sans text-sm text-gray-500">
         <Link href="/" className="hover:text-black">Home</Link>
         <span className="mx-3">/</span>
         <Link href="/articles" className="hover:text-black">Articles</Link>
@@ -201,17 +201,17 @@ export default async function ArticlePage({ params }: Props) {
           )}
         </div>
 
-        <h1 className="text-5xl md:text-7xl font-bold leading-tight mb-8 font-headline">
+        <h1 className="text-3xl md:text-4xl font-bold leading-tight mb-6 font-headline">
           {article.title}
         </h1>
 
         {article.excerpt && (
-          <p className="text-2xl md:text-3xl text-gray-600 leading-relaxed mb-8 font-serif italic">
+          <p className="text-lg md:text-xl text-gray-600 leading-relaxed mb-6 font-serif italic">
             {article.excerpt}
           </p>
         )}
 
-        <div className="flex items-center gap-4 font-sans text-base text-gray-500 border-t border-b border-gray-200 py-4">
+        <div className="flex items-center gap-4 font-sans text-sm text-gray-500 border-t border-b border-gray-200 py-4">
           <span className="font-bold text-black">By Nick Shirley</span>
           <span>|</span>
           <time>{formattedDate}</time>
@@ -239,7 +239,7 @@ export default async function ArticlePage({ params }: Props) {
       )}
 
       {/* Article Content */}
-      <div className="article-content prose prose-xl max-w-none font-serif">
+      <div className="article-content prose prose-base max-w-none font-serif">
         <ReactMarkdown>{article.content}</ReactMarkdown>
       </div>
 
@@ -250,10 +250,10 @@ export default async function ArticlePage({ params }: Props) {
             href={article.source_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 font-sans text-base font-bold text-black hover:underline"
+            className="inline-flex items-center gap-2 font-sans text-sm font-bold text-black hover:underline"
           >
             View original on {article.source_type === 'youtube' ? 'YouTube' : 'X'}
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
           </a>
@@ -262,7 +262,7 @@ export default async function ArticlePage({ params }: Props) {
 
       {/* Share Section */}
       <div className="mt-12 pt-8 border-t border-gray-200">
-        <h3 className="font-sans font-bold text-base uppercase tracking-wider mb-4">
+        <h3 className="font-sans font-bold text-sm uppercase tracking-wider mb-4">
           Share this article
         </h3>
         <div className="flex gap-4">
@@ -270,9 +270,9 @@ export default async function ArticlePage({ params }: Props) {
             href={`https://x.com/intent/tweet?text=${encodeURIComponent(article.title)}&url=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-6 py-3 border border-gray-200 hover:bg-gray-50 font-sans text-base font-bold"
+            className="flex items-center gap-2 px-4 py-2 border border-gray-200 hover:bg-gray-50 font-sans text-sm font-bold"
           >
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
               <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
             </svg>
             Share on X
@@ -284,9 +284,9 @@ export default async function ArticlePage({ params }: Props) {
       <div className="mt-16">
         <Link
           href="/articles"
-          className="inline-flex items-center gap-2 font-sans text-base font-bold text-gray-600 hover:text-black uppercase tracking-wider"
+          className="inline-flex items-center gap-2 font-sans text-sm font-bold text-gray-600 hover:text-black uppercase tracking-wider"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
           Back to all articles

@@ -99,7 +99,7 @@ export default async function Home() {
         {/* Articles Column */}
         <div className="lg:col-span-8">
           <div className="border-t-2 border-black pt-4 mb-8">
-            <h2 className="font-sans font-bold text-lg uppercase tracking-wider mb-8">
+            <h2 className="font-sans font-bold text-sm uppercase tracking-wider mb-8">
               Latest Updates
             </h2>
           </div>
@@ -122,7 +122,7 @@ export default async function Home() {
           <div className="mt-12">
             <Link
               href="/articles"
-              className="inline-block font-sans text-base font-bold uppercase tracking-wider border-2 border-black px-8 py-4 hover:bg-black hover:text-white transition-colors"
+              className="inline-block font-sans text-sm font-bold uppercase tracking-wider border-2 border-black px-6 py-3 hover:bg-black hover:text-white transition-colors"
             >
               View All Articles
             </Link>
@@ -153,19 +153,19 @@ export default async function Home() {
       <section className="mt-24 border-t-4 border-black pt-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 font-headline">About Nick Shirley</h2>
-            <p className="text-gray-600 mb-6 leading-relaxed text-xl font-serif">
+            <h2 className="text-2xl md:text-3xl font-bold mb-4 font-headline">About Nick Shirley</h2>
+            <p className="text-gray-600 mb-4 leading-relaxed text-base font-serif">
               Nick Shirley is an independent journalist who travels the world to report
               on current events. With a commitment to on-the-ground reporting and
               unfiltered storytelling, Nick brings you the stories that matter most.
             </p>
-            <p className="text-gray-600 mb-8 leading-relaxed text-xl font-serif">
+            <p className="text-gray-600 mb-6 leading-relaxed text-base font-serif">
               Follow his journey on YouTube and X for real-time updates, in-depth
               documentaries, and behind-the-scenes content from locations around the globe.
             </p>
             <Link
               href="/about"
-              className="inline-block font-sans text-base font-bold uppercase tracking-wider underline hover:no-underline"
+              className="inline-block font-sans text-sm font-bold uppercase tracking-wider underline hover:no-underline"
             >
               Read Full Bio
             </Link>
@@ -175,9 +175,9 @@ export default async function Home() {
               href="https://youtube.com/@nickshirley"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 border-2 border-black px-8 py-4 hover:bg-black hover:text-white transition-colors font-sans text-base font-bold"
+              className="flex items-center gap-2 border-2 border-black px-6 py-3 hover:bg-black hover:text-white transition-colors font-sans text-sm font-bold"
             >
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
               </svg>
               YouTube
@@ -186,9 +186,9 @@ export default async function Home() {
               href="https://x.com/nickshirleyy"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 border-2 border-black px-8 py-4 hover:bg-black hover:text-white transition-colors font-sans text-base font-bold"
+              className="flex items-center gap-2 border-2 border-black px-6 py-3 hover:bg-black hover:text-white transition-colors font-sans text-sm font-bold"
             >
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
               </svg>
               Follow on X

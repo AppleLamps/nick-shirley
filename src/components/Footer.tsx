@@ -10,7 +10,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="md:col-span-2">
-            <h3 className="text-2xl font-bold mb-4">Nick Shirley</h3>
+            <h3 className="text-lg font-bold mb-4">Nick Shirley</h3>
             <p className="text-gray-600 font-sans text-sm max-w-md">
               Independent journalist traveling the world to report on current events.
               Bringing you stories that matter, from the ground.

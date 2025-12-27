@@ -101,8 +101,8 @@ export default async function ArticlesPage() {
     <div className="max-w-[1200px] mx-auto px-4 py-12">
       {/* Page Header */}
       <div className="border-t-4 border-black pt-8 mb-12">
-        <h1 className="text-6xl font-bold mb-4 font-headline">Articles</h1>
-        <p className="text-xl text-gray-600 font-sans">
+        <h1 className="text-3xl font-bold mb-3 font-headline">Articles</h1>
+        <p className="text-base text-gray-600 font-sans">
           Latest updates, reports, and stories from around the world.
         </p>
       </div>
@@ -125,7 +125,7 @@ export default async function ArticlesPage() {
 
       {articles.length === 0 && (
         <div className="text-center py-24">
-          <p className="text-gray-500 font-sans text-xl">No articles available yet.</p>
+          <p className="text-gray-500 font-sans text-base">No articles available yet.</p>
         </div>
       )}
     </div>

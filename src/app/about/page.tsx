@@ -10,11 +10,11 @@ export default function AboutPage() {
     <div className="max-w-[1200px] mx-auto px-4 py-12">
       {/* Page Header */}
       <div className="border-t-4 border-black pt-8 mb-16">
-        <h1 className="text-6xl md:text-7xl font-bold mb-8 font-headline">About Nick Shirley</h1>
+        <h1 className="text-3xl md:text-4xl font-bold mb-6 font-headline">About Nick Shirley</h1>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
           <div className="lg:col-span-8">
-            <p className="text-2xl md:text-3xl text-gray-600 leading-relaxed font-serif italic">
-              Nick Shirley. Twenty-three years old. Independent. And he’s coming for the stories legacy media refuses to touch.
+            <p className="text-lg md:text-xl text-gray-600 leading-relaxed font-serif italic">
+              Nick Shirley. Twenty-three years old. Independent. And he's coming for the stories legacy media refuses to touch.
             </p>
           </div>
         </div>
@@ -22,81 +22,81 @@ export default function AboutPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
         {/* Main Content Column */}
-        <div className="lg:col-span-8 prose prose-xl max-w-none font-serif">
-          <p className="text-xl leading-relaxed mb-10 first-letter:text-7xl first-letter:font-bold first-letter:mr-4 first-letter:float-left">
+        <div className="lg:col-span-8 prose prose-base max-w-none font-serif">
+          <p className="text-base leading-relaxed mb-8 first-letter:text-5xl first-letter:font-bold first-letter:mr-3 first-letter:float-left">
             Nick Shirley is the independent journalist and YouTube creator delivering unfiltered, street-level truth that shatters narratives and exposes corruption. With a massive reach of over 1 million subscribers on YouTube and 372,000 followers on X, Shirley has built an army of supporters hungry for accountability—and he’s forcing the issues into the national spotlight.
           </p>
 
-          <p className="text-xl leading-relaxed mb-10">
+          <p className="text-base leading-relaxed mb-8">
             His mission is simple: go directly to the source, ask the uncomfortable questions, and let the facts fall where they may. No gatekeepers. No corporate filters. No spin.
           </p>
 
           <div className="border-t border-gray-200 my-12 w-32"></div>
 
-          <h2 className="text-4xl font-bold mb-6 font-headline">The Ground Game: Uncovering the Impossible</h2>
-          <p className="text-xl leading-relaxed mb-8">
-            Shirley’s brand of journalism happens on the front lines. He doesn’t wait for press conferences; he walks into the fire. This is a journalist who confronted New York City officials about migrant crisis scams, documented empty childcare facilities in Minnesota that billed taxpayers OVER $110 MILLION IN ONE DAY, and even walked through El Salvador’s notorious CECOT mega-prison.
+          <h2 className="text-xl font-bold mb-4 font-headline">The Ground Game: Uncovering the Impossible</h2>
+          <p className="text-base leading-relaxed mb-6">
+            Shirley's brand of journalism happens on the front lines. He doesn't wait for press conferences; he walks into the fire. This is a journalist who confronted New York City officials about migrant crisis scams, documented empty childcare facilities in Minnesota that billed taxpayers OVER $110 MILLION IN ONE DAY, and even walked through El Salvador's notorious CECOT mega-prison.
           </p>
-          <p className="text-xl leading-relaxed mb-8">
+          <p className="text-base leading-relaxed mb-6">
             He films inside subway cars where violence has exploded, stands face-to-face with protesters, and puts cameras on politicians who have nowhere to hide. His gotcha questions have become viral moments—showing what honesty looks like when questions go unanswered.
           </p>
-          <p className="text-xl leading-relaxed mb-8">
-            But it’s not about comfort. It’s about exposure.
+          <p className="text-base leading-relaxed mb-6">
+            But it's not about comfort. It's about exposure.
           </p>
-          <p className="text-xl leading-relaxed mb-8">
-            During protests in Portland, he was once threatened at gunpoint. He didn’t back down. He kept reporting. That’s the toughness required when you’re on the ground while other journalists are still typing.
+          <p className="text-base leading-relaxed mb-6">
+            During protests in Portland, he was once threatened at gunpoint. He didn't back down. He kept reporting. That's the toughness required when you're on the ground while other journalists are still typing.
           </p>
 
-          <h2 className="text-4xl font-bold mt-16 mb-6 font-headline">The Viral Breakthrough: Stumbling Onto a Massive Scandal</h2>
-          <p className="text-xl leading-relaxed mb-8">
-            Shirley’s reporting exploded in late 2025 with one investigation that broke the internet: the Minnesota childcare fraud scandal.
+          <h2 className="text-xl font-bold mt-12 mb-4 font-headline">The Viral Breakthrough: Stumbling Onto a Massive Scandal</h2>
+          <p className="text-base leading-relaxed mb-6">
+            Shirley's reporting exploded in late 2025 with one investigation that broke the internet: the Minnesota childcare fraud scandal.
           </p>
-          <p className="text-xl leading-relaxed mb-8">
+          <p className="text-base leading-relaxed mb-6">
             In a bombshell 42-minute video posted December 26, 2025, he and his crew exposed what is arguably one of the largest taxpayer heists in modern history. They drove to childcare centers allegedly serving hundreds of children—facilities that billed the state millions—only to find empty buildings, locked doors, and overgrown playgrounds.
           </p>
-          <p className="text-xl leading-relaxed mb-8">
-            They confronted owners who couldn’t explain WHERE THE CHILDREN WERE. They found facilities operating out of condemned buildings. They documented state payments flowing to addresses that were clearly fraudulent.
+          <p className="text-base leading-relaxed mb-6">
+            They confronted owners who couldn't explain WHERE THE CHILDREN WERE. They found facilities operating out of condemned buildings. They documented state payments flowing to addresses that were clearly fraudulent.
           </p>
-          <p className="text-xl leading-relaxed mb-8">
+          <p className="text-base leading-relaxed mb-6">
             The reaction was electric.
           </p>
-          <p className="text-xl leading-relaxed mb-8">
+          <p className="text-base leading-relaxed mb-6">
             The video pulled in millions of views across platforms. Elon Musk amplified it. Andrew Tate called for arrests. Jack Posobiec demanded the prosecution of Minnesota Gov. Tim Walz for his alleged role in enabling the scheme. The story became a firestorm that even Democrats had to address.
           </p>
-          <p className="text-xl leading-relaxed mb-8">
+          <p className="text-base leading-relaxed mb-6">
             For Shirley, it proved his core argument: The real stories are hiding in plain sight. You just have to go look.
           </p>
 
-          <h2 className="text-4xl font-bold mt-16 mb-6 font-headline">The Origins: From Pranks to Accountability</h2>
-          <p className="text-xl leading-relaxed mb-8">
+          <h2 className="text-xl font-bold mt-12 mb-4 font-headline">The Origins: From Pranks to Accountability</h2>
+          <p className="text-base leading-relaxed mb-6">
             Before he was a journalist, Shirley started as a teenager making prank and entertainment videos around 2017–2019. It was raw, unfiltered content—the kind that built a loyal following. But as the world changed, so did his focus. He saw stories no one was covering. Gaps in the narrative that needed filling.
           </p>
-          <p className="text-xl leading-relaxed mb-8">
-            By 2024, he pivoted to harder topics: immigration, urban crime, the border crisis, and protests. His videos took him from NYC subways to deep inside pro-Palestine demonstrations, interviewing North Korean defectors about socialism’s failures and challenging protesters on their own talking points.
+          <p className="text-base leading-relaxed mb-6">
+            By 2024, he pivoted to harder topics: immigration, urban crime, the border crisis, and protests. His videos took him from NYC subways to deep inside pro-Palestine demonstrations, interviewing North Korean defectors about socialism's failures and challenging protesters on their own talking points.
           </p>
-          <p className="text-xl leading-relaxed mb-8">
-            The evolution from entertainment to accountability journalism wasn’t an accident. It was a choice to use his platform for something that matters.
+          <p className="text-base leading-relaxed mb-6">
+            The evolution from entertainment to accountability journalism wasn't an accident. It was a choice to use his platform for something that matters.
           </p>
 
-          <h2 className="text-4xl font-bold mt-16 mb-6 font-headline">The Mainstream Pushback and the National Spotlight</h2>
-          <p className="text-xl leading-relaxed mb-8">
+          <h2 className="text-xl font-bold mt-12 mb-4 font-headline">The Mainstream Pushback and the National Spotlight</h2>
+          <p className="text-base leading-relaxed mb-6">
             When your work exposes powerful people, backlash is inevitable. Shirley has faced accusations of bias, sensationalism, and selective editing—often from the very activists and politicians he holds accountable.
           </p>
-          <p className="text-xl leading-relaxed mb-8">
-            But silence isn’t accountability.
+          <p className="text-base leading-relaxed mb-6">
+            But silence isn't accountability.
           </p>
-          <p className="text-xl leading-relaxed mb-8">
-            He’s appeared on Fox News programs like <em>Jesse Watters Primetime</em> and <em>The Ingraham Angle</em>, Timcast IRL, and even C-SPAN to defend his reporting. These outlets recognize what he brings: ground-level reality that challenges the status quo.
+          <p className="text-base leading-relaxed mb-6">
+            He's appeared on Fox News programs like <em>Jesse Watters Primetime</em> and <em>The Ingraham Angle</em>, Timcast IRL, and even C-SPAN to defend his reporting. These outlets recognize what he brings: ground-level reality that challenges the status quo.
           </p>
-          <p className="text-xl leading-relaxed mb-8">
-            His critics can complain about his methods. They can’t refute his cameras.
+          <p className="text-base leading-relaxed mb-6">
+            His critics can complain about his methods. They can't refute his cameras.
           </p>
 
-          <h2 className="text-4xl font-bold mt-16 mb-6 font-headline">Topics That Won’t Be Ignored</h2>
-          <p className="text-xl leading-relaxed mb-8">
-            Shirley’s reporting spans the issues Americans are desperate to understand—the ones legacy media sweeps under the rug.
+          <h2 className="text-xl font-bold mt-12 mb-4 font-headline">Topics That Won't Be Ignored</h2>
+          <p className="text-base leading-relaxed mb-6">
+            Shirley's reporting spans the issues Americans are desperate to understand—the ones legacy media sweeps under the rug.
           </p>
-          <ul className="list-disc pl-6 space-y-4 mb-10">
+          <ul className="list-disc pl-6 space-y-3 mb-8 text-base">
             <li><strong>The Migrant Crisis:</strong> From New York City to Ireland, he exposes the costs, the scams, and the strains on communities. No one else is this direct about the consequences.</li>
             <li><strong>Pro-Palestine Protests:</strong> He walks into crowds and asks the questions journalists are afraid to ask. He documents the chaos and challenges the narratives pushed by activists.</li>
             <li><strong>Urban Decay & Public Safety:</strong> He shows the truth behind rising crime and deteriorating infrastructure. No spin, no excuses—just the brutal reality of what’s happening.</li>
@@ -104,17 +104,17 @@ export default function AboutPage() {
             <li><strong>Anti-Socialism Warnings:</strong> Interviews with North Korean defectors reveal the terrifying reality of authoritarian regimes, cautioning America about the dangers of unchecked government control.</li>
           </ul>
 
-          <h2 className="text-4xl font-bold mt-16 mb-6 font-headline">The Mission Is Clear</h2>
-          <p className="text-xl leading-relaxed mb-8">
-            Shirley positions his work as truth from the streets—the reporting that happens when you bypass the filters and go straight to the source. His supporters see a fearless investigator willing to risk his safety to hold power accountable. His critics see rage-bait. But millions of viewers see something they can’t find anywhere else: raw, unfiltered accountability journalism.
+          <h2 className="text-xl font-bold mt-12 mb-4 font-headline">The Mission Is Clear</h2>
+          <p className="text-base leading-relaxed mb-6">
+            Shirley positions his work as truth from the streets—the reporting that happens when you bypass the filters and go straight to the source. His supporters see a fearless investigator willing to risk his safety to hold power accountable. His critics see rage-bait. But millions of viewers see something they can't find anywhere else: raw, unfiltered accountability journalism.
           </p>
-          <p className="text-xl leading-relaxed mb-8">
-            This isn’t about comfort. It’s about exposing fraud, waste, and corruption that robs taxpayers and erodes trust. It’s about demanding answers when politicians dodge questions.
+          <p className="text-base leading-relaxed mb-6">
+            This isn't about comfort. It's about exposing fraud, waste, and corruption that robs taxpayers and erodes trust. It's about demanding answers when politicians dodge questions.
           </p>
-          <p className="text-xl leading-relaxed mb-8">
-            Support him or hate him, Nick Shirley isn’t going anywhere. There are too many stories left to break, and too many people who need to be held accountable.
+          <p className="text-base leading-relaxed mb-6">
+            Support him or hate him, Nick Shirley isn't going anywhere. There are too many stories left to break, and too many people who need to be held accountable.
           </p>
-          <p className="text-xl leading-relaxed mb-8 font-bold">
+          <p className="text-base leading-relaxed mb-6 font-bold">
             This is only the beginning.
           </p>
         </div>
@@ -122,7 +122,7 @@ export default function AboutPage() {
         {/* Sidebar Column */}
         <div className="lg:col-span-4 space-y-10">
           <div className="bg-gray-50 p-8 border border-gray-200 sticky top-8">
-            <h3 className="font-bold text-xl mb-6 font-sans uppercase tracking-wider border-b-2 border-black pb-3">
+            <h3 className="font-bold text-sm mb-4 font-sans uppercase tracking-wider border-b-2 border-black pb-3">
               Where to Find Nick
             </h3>
 
@@ -139,7 +139,7 @@ export default function AboutPage() {
                   </svg>
                 </div>
                 <div>
-                  <span className="block font-bold font-sans text-lg">X / Twitter</span>
+                  <span className="block font-bold font-sans text-base">X / Twitter</span>
                   <span className="block text-sm text-gray-500">@nickshirleyy</span>
                 </div>
               </a>
@@ -156,7 +156,7 @@ export default function AboutPage() {
                   </svg>
                 </div>
                 <div>
-                  <span className="block font-bold font-sans text-lg">YouTube</span>
+                  <span className="block font-bold font-sans text-base">YouTube</span>
                   <span className="block text-sm text-gray-500">@NickShirley</span>
                 </div>
               </a>
@@ -173,7 +173,7 @@ export default function AboutPage() {
                   </svg>
                 </div>
                 <div>
-                  <span className="block font-bold font-sans text-lg">Instagram</span>
+                  <span className="block font-bold font-sans text-base">Instagram</span>
                   <span className="block text-sm text-gray-500">@nickshirley</span>
                 </div>
               </a>
@@ -190,7 +190,7 @@ export default function AboutPage() {
                   </svg>
                 </div>
                 <div>
-                  <span className="block font-bold font-sans text-lg">Facebook</span>
+                  <span className="block font-bold font-sans text-base">Facebook</span>
                   <span className="block text-sm text-gray-500">Nick Shirley</span>
                 </div>
               </a>
@@ -207,7 +207,7 @@ export default function AboutPage() {
                   </svg>
                 </div>
                 <div>
-                  <span className="block font-bold font-sans text-lg">Podcast</span>
+                  <span className="block font-bold font-sans text-base">Podcast</span>
                   <span className="block text-sm text-gray-500">The Nick Shirley Show</span>
                 </div>
               </a>
