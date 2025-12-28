@@ -128,10 +128,11 @@ export async function fetchYouTubeVideos(limit = 10): Promise<YouTubeVideoData[]
     }
 
     const targetCount = Math.max(1, limit);
+    const perPage = Math.min(50, Math.max(targetCount, 10));
     const eligible: YouTubeVideoItem[] = [];
     const seenIds = new Set<string>();
     let pageToken: string | undefined;
-    let remainingPages = 6;
+    let remainingPages = 10;
 
     while (eligible.length < targetCount && remainingPages > 0) {
       const searchUrl = new URL(`${YOUTUBE_API_URL}/search`);
@@ -139,7 +140,7 @@ export async function fetchYouTubeVideos(limit = 10): Promise<YouTubeVideoData[]
       searchUrl.searchParams.set('channelId', channelId);
       searchUrl.searchParams.set('order', 'date');
       searchUrl.searchParams.set('type', 'video');
-      searchUrl.searchParams.set('maxResults', String(Math.min(50, targetCount)));
+      searchUrl.searchParams.set('maxResults', String(perPage));
       searchUrl.searchParams.set('key', apiKey);
       if (pageToken) {
         searchUrl.searchParams.set('pageToken', pageToken);
@@ -178,20 +179,17 @@ export async function fetchYouTubeVideos(limit = 10): Promise<YouTubeVideoData[]
         const videosData = (await videosResponse.json()) as YouTubeVideosResponse;
         const items: YouTubeVideoItem[] = videosData.items || [];
 
-        // Filter out Shorts and livestreams/replays
+        // Filter out Shorts and active/upcoming live streams.
         // Note: The YouTube API does not have a direct filter for "Videos only" (excluding Shorts and Live).
         // - Shorts are filtered by duration (<= 180s).
-        // - Live streams are filtered by the presence of liveStreamingDetails.
-        // - WARNING: This also filters out finished Premieres, as they have liveStreamingDetails.
+        // - Live streams are filtered by liveBroadcastContent.
         const filteredPage = items.filter((video) => {
           const durationSeconds = parseDurationSeconds(video.contentDetails?.duration || '');
           const isShort = durationSeconds > 0 && durationSeconds <= 180;
           const isLiveOrUpcoming =
             video.snippet?.liveBroadcastContent === 'live' ||
             video.snippet?.liveBroadcastContent === 'upcoming';
-          const isLivestreamReplay = Boolean(video.liveStreamingDetails);
-
-          return !isShort && !isLiveOrUpcoming && !isLivestreamReplay;
+          return !isShort && !isLiveOrUpcoming;
         });
 
         eligible.push(...filteredPage);
