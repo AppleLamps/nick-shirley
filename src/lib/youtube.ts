@@ -102,7 +102,7 @@ async function getChannelId(apiKey: string): Promise<string | null> {
   return null;
 }
 
-export async function fetchYouTubeVideos(limit = 5): Promise<YouTubeVideoData[]> {
+export async function fetchYouTubeVideos(limit = 10): Promise<YouTubeVideoData[]> {
   const apiKey = process.env.YOUTUBE_API_KEY;
 
   if (!apiKey || apiKey === 'your_youtube_api_key_here') {
