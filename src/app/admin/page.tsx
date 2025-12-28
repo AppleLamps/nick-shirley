@@ -1,6 +1,10 @@
 'use client';
 
-import { useMemo, useState, useRef } from 'react';
+import { useMemo, useState, useRef, useEffect, useCallback } from 'react';
+import { Article } from '@/lib/db';
+import ArticleTable from '@/components/admin/ArticleTable';
+import ArticleFormModal from '@/components/admin/ArticleFormModal';
+import DeleteConfirmModal from '@/components/admin/DeleteConfirmModal';
 
 type RefreshKey = 'xPosts' | 'xMentions' | 'youtubeVideos' | 'videoSummaries';
 
@@ -30,7 +34,39 @@ export default function AdminPage() {
   const [purging, setPurging] = useState(false);
   const [importFileName, setImportFileName] = useState<string>('');
 
+  // Article management state
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [articlesLoading, setArticlesLoading] = useState(true);
+  const [showFormModal, setShowFormModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [editingArticle, setEditingArticle] = useState<Article | null>(null);
+  const [deletingArticle, setDeletingArticle] = useState<Article | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [showBulkOps, setShowBulkOps] = useState(false);
+
   const adminPassword = useMemo(() => process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin123', []);
+
+  const fetchArticles = useCallback(async () => {
+    try {
+      setArticlesLoading(true);
+      const res = await fetch('/api/admin/articles');
+      const data = await res.json();
+      if (data.success) {
+        setArticles(data.articles);
+      }
+    } catch (error) {
+      console.error('Failed to fetch articles:', error);
+    } finally {
+      setArticlesLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isUnlocked) {
+      fetchArticles();
+    }
+  }, [isUnlocked, fetchArticles]);
 
   const handleUnlock = () => {
     if (password === adminPassword) {
@@ -129,6 +165,7 @@ export default function AdminPage() {
 
       setArticleMessage(`Imported ${data.processed} articles${data.skipped ? `, skipped ${data.skipped}` : ''}.`);
       setArticleMessageTone(data.skipped ? 'neutral' : 'success');
+      fetchArticles(); // Refresh article list
     } catch (error: unknown) {
       setArticleMessage(error instanceof Error ? error.message : 'Import failed');
       setArticleMessageTone('error');
@@ -153,11 +190,81 @@ export default function AdminPage() {
       if (!res.ok) throw new Error(data.error || 'Delete failed');
       setArticleMessage('All articles deleted.');
       setArticleMessageTone('success');
+      fetchArticles(); // Refresh article list
     } catch (error: unknown) {
       setArticleMessage(error instanceof Error ? error.message : 'Delete failed');
       setArticleMessageTone('error');
     } finally {
       setPurging(false);
+    }
+  };
+
+  // Article CRUD handlers
+  const handleCreateNew = () => {
+    setEditingArticle(null);
+    setShowFormModal(true);
+  };
+
+  const handleEdit = (article: Article) => {
+    setEditingArticle(article);
+    setShowFormModal(true);
+  };
+
+  const handleDelete = (article: Article) => {
+    setDeletingArticle(article);
+    setShowDeleteModal(true);
+  };
+
+  const handleSaveArticle = async (articleData: Partial<Article>) => {
+    setSaving(true);
+    try {
+      if (editingArticle) {
+        // Update existing article
+        const res = await fetch(`/api/admin/articles/${editingArticle.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(articleData),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Update failed');
+      } else {
+        // Create new article
+        const res = await fetch('/api/admin/articles', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(articleData),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Create failed');
+      }
+      setShowFormModal(false);
+      setEditingArticle(null);
+      fetchArticles();
+    } catch (error) {
+      console.error('Save error:', error);
+      alert(error instanceof Error ? error.message : 'Failed to save article');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deletingArticle) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/articles/${deletingArticle.id}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Delete failed');
+      setShowDeleteModal(false);
+      setDeletingArticle(null);
+      fetchArticles();
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert(error instanceof Error ? error.message : 'Failed to delete article');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -236,81 +343,135 @@ export default function AdminPage() {
 
           {/* Article Manager Section */}
           <section className="border border-gray-200">
-            <div className="border-b border-gray-200 px-6 py-4">
-              <h2 className="font-bold text-lg">Article Manager</h2>
-              <p className="text-xs text-gray-500 font-sans">Import or export all articles as a single JSON file</p>
+            <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+              <div>
+                <h2 className="font-bold text-lg">Article Manager</h2>
+                <p className="text-xs text-gray-500 font-sans">Create, edit, and manage articles</p>
+              </div>
+              <button
+                onClick={handleCreateNew}
+                className="px-4 py-2 bg-black text-white text-sm font-sans font-bold hover:bg-gray-800"
+              >
+                New Article
+              </button>
             </div>
 
             <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Export Card */}
-                <div className="border border-gray-200 p-4">
-                  <h3 className="font-bold text-sm mb-1">Export</h3>
-                  <p className="text-xs text-gray-500 font-sans mb-3">Download every article in one JSON file.</p>
-                  <button
-                    onClick={handleExport}
-                    disabled={exporting}
-                    className="w-full px-4 py-2 bg-black text-white text-xs font-sans font-bold hover:bg-gray-800 disabled:bg-gray-400"
-                  >
-                    {exporting ? 'Exporting...' : 'Export Articles'}
-                  </button>
-                </div>
+              {/* Article Table */}
+              <ArticleTable
+                articles={articles}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                loading={articlesLoading}
+              />
 
-                {/* Import Card */}
-                <div className="border border-gray-200 p-4">
-                  <h3 className="font-bold text-sm mb-1">Import</h3>
-                  <p className="text-xs text-gray-500 font-sans mb-3">Upload a JSON file with an array of articles.</p>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="application/json"
-                    onChange={(e) => handleImport(e.target.files?.[0] || null)}
-                    disabled={importing}
-                    className="hidden"
-                    id="import-file"
-                  />
-                  <label
-                    htmlFor="import-file"
-                    className={`w-full block text-center px-4 py-2 text-xs font-sans font-bold cursor-pointer ${importing
-                      ? 'bg-gray-400 text-white cursor-not-allowed'
-                      : 'bg-black text-white hover:bg-gray-800'
-                      }`}
-                  >
-                    {importing ? 'Importing...' : 'Choose File'}
-                  </label>
-                  {importFileName && (
-                    <p className="text-xs text-gray-500 font-sans mt-2 truncate">{importFileName}</p>
-                  )}
-                </div>
+              {/* Bulk Operations Toggle */}
+              <div className="mt-6 border-t border-gray-200 pt-6">
+                <button
+                  onClick={() => setShowBulkOps(!showBulkOps)}
+                  className="text-sm text-gray-600 font-sans hover:text-black flex items-center gap-2"
+                >
+                  <span className={`transform transition-transform ${showBulkOps ? 'rotate-90' : ''}`}>
+                    &#9654;
+                  </span>
+                  Bulk Operations (Import / Export / Delete All)
+                </button>
 
-                {/* Delete All Card */}
-                <div className="border border-gray-200 p-4">
-                  <h3 className="font-bold text-sm mb-1">Delete All</h3>
-                  <p className="text-xs text-gray-500 font-sans mb-3">Remove every article from the database.</p>
-                  <button
-                    onClick={handlePurge}
-                    disabled={purging}
-                    className="w-full px-4 py-2 border-2 border-black text-black text-xs font-sans font-bold hover:bg-black hover:text-white disabled:bg-gray-400 disabled:border-gray-400 disabled:text-white"
-                  >
-                    {purging ? 'Deleting...' : 'Delete All Articles'}
-                  </button>
-                </div>
+                {showBulkOps && (
+                  <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Export Card */}
+                    <div className="border border-gray-200 p-4">
+                      <h3 className="font-bold text-sm mb-1">Export</h3>
+                      <p className="text-xs text-gray-500 font-sans mb-3">Download every article in one JSON file.</p>
+                      <button
+                        onClick={handleExport}
+                        disabled={exporting}
+                        className="w-full px-4 py-2 bg-black text-white text-xs font-sans font-bold hover:bg-gray-800 disabled:bg-gray-400"
+                      >
+                        {exporting ? 'Exporting...' : 'Export Articles'}
+                      </button>
+                    </div>
+
+                    {/* Import Card */}
+                    <div className="border border-gray-200 p-4">
+                      <h3 className="font-bold text-sm mb-1">Import</h3>
+                      <p className="text-xs text-gray-500 font-sans mb-3">Upload a JSON file with an array of articles.</p>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="application/json"
+                        onChange={(e) => handleImport(e.target.files?.[0] || null)}
+                        disabled={importing}
+                        className="hidden"
+                        id="import-file"
+                      />
+                      <label
+                        htmlFor="import-file"
+                        className={`w-full block text-center px-4 py-2 text-xs font-sans font-bold cursor-pointer ${importing
+                          ? 'bg-gray-400 text-white cursor-not-allowed'
+                          : 'bg-black text-white hover:bg-gray-800'
+                          }`}
+                      >
+                        {importing ? 'Importing...' : 'Choose File'}
+                      </label>
+                      {importFileName && (
+                        <p className="text-xs text-gray-500 font-sans mt-2 truncate">{importFileName}</p>
+                      )}
+                    </div>
+
+                    {/* Delete All Card */}
+                    <div className="border border-gray-200 p-4">
+                      <h3 className="font-bold text-sm mb-1">Delete All</h3>
+                      <p className="text-xs text-gray-500 font-sans mb-3">Remove every article from the database.</p>
+                      <button
+                        onClick={handlePurge}
+                        disabled={purging}
+                        className="w-full px-4 py-2 border-2 border-black text-black text-xs font-sans font-bold hover:bg-black hover:text-white disabled:bg-gray-400 disabled:border-gray-400 disabled:text-white"
+                      >
+                        {purging ? 'Deleting...' : 'Delete All Articles'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {articleMessage && (
+                  <p className={`mt-4 text-sm font-sans ${articleMessageTone === 'success'
+                    ? 'text-green-700'
+                    : articleMessageTone === 'error'
+                      ? 'text-red-600'
+                      : 'text-gray-600'
+                    }`}>
+                    {articleMessage}
+                  </p>
+                )}
               </div>
-
-              {articleMessage && (
-                <p className={`mt-4 text-sm font-sans ${articleMessageTone === 'success'
-                  ? 'text-green-700'
-                  : articleMessageTone === 'error'
-                    ? 'text-red-600'
-                    : 'text-gray-600'
-                  }`}>
-                  {articleMessage}
-                </p>
-              )}
             </div>
           </section>
         </div>
       )}
+
+      {/* Modals */}
+      <ArticleFormModal
+        isOpen={showFormModal}
+        onClose={() => {
+          setShowFormModal(false);
+          setEditingArticle(null);
+        }}
+        onSave={handleSaveArticle}
+        article={editingArticle}
+        loading={saving}
+      />
+
+      <DeleteConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setDeletingArticle(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        articleTitle={deletingArticle?.title || ''}
+        loading={deleting}
+      />
     </div>
   );
 }

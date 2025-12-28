@@ -156,6 +156,71 @@ export async function deleteAllArticles(): Promise<void> {
   await sql`DELETE FROM articles`;
 }
 
+export async function getArticleById(id: number): Promise<Article | null> {
+  const result = await sql`
+    SELECT * FROM articles
+    WHERE id = ${id}
+    LIMIT 1
+  `;
+  return (result[0] as Article) || null;
+}
+
+export async function deleteArticleById(id: number): Promise<boolean> {
+  const result = await sql`
+    DELETE FROM articles
+    WHERE id = ${id}
+    RETURNING id
+  `;
+  return result.length > 0;
+}
+
+export async function createArticle(
+  article: Omit<Article, 'id' | 'created_at' | 'updated_at'>
+): Promise<Article> {
+  const result = await sql`
+    INSERT INTO articles (title, slug, excerpt, content, featured_image, category, source_type, source_url, published, featured, created_at, updated_at)
+    VALUES (
+      ${article.title},
+      ${article.slug},
+      ${article.excerpt || null},
+      ${article.content},
+      ${article.featured_image || null},
+      ${article.category || 'update'},
+      ${article.source_type || null},
+      ${article.source_url || null},
+      ${article.published ?? false},
+      ${article.featured ?? false},
+      CURRENT_TIMESTAMP,
+      CURRENT_TIMESTAMP
+    )
+    RETURNING *
+  `;
+  return result[0] as Article;
+}
+
+export async function updateArticleById(
+  id: number,
+  article: Partial<Omit<Article, 'id' | 'created_at' | 'updated_at'>>
+): Promise<Article | null> {
+  const result = await sql`
+    UPDATE articles SET
+      title = COALESCE(${article.title ?? null}, title),
+      slug = COALESCE(${article.slug ?? null}, slug),
+      excerpt = ${article.excerpt ?? null},
+      content = COALESCE(${article.content ?? null}, content),
+      featured_image = ${article.featured_image ?? null},
+      category = COALESCE(${article.category ?? null}, category),
+      source_type = ${article.source_type ?? null},
+      source_url = ${article.source_url ?? null},
+      published = COALESCE(${article.published ?? null}, published),
+      featured = COALESCE(${article.featured ?? null}, featured),
+      updated_at = CURRENT_TIMESTAMP
+    WHERE id = ${id}
+    RETURNING *
+  `;
+  return (result[0] as Article) || null;
+}
+
 export async function getXPosts(limit = 20): Promise<XPost[]> {
   const result = await sql`
     SELECT * FROM x_posts
