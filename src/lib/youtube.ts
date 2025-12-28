@@ -59,6 +59,15 @@ interface YouTubeVideoItem {
   };
 }
 
+interface YouTubeSearchResponse {
+  items?: YouTubeSearchItem[];
+  nextPageToken?: string;
+}
+
+interface YouTubeVideosResponse {
+  items?: YouTubeVideoItem[];
+}
+
 function parseDuration(isoDuration: string): string {
   // Parse ISO 8601 duration (PT1H2M3S) to readable format (1:02:03)
   const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
@@ -118,70 +127,90 @@ export async function fetchYouTubeVideos(limit = 10): Promise<YouTubeVideoData[]
       return [];
     }
 
-    // Search for recent videos from this channel.
-    // We intentionally over-fetch here so we can filter out Shorts and livestreams.
-    const maxResults = Math.min(50, Math.max(limit * 10, limit));
-    const searchResponse = await fetch(
-      `${YOUTUBE_API_URL}/search?part=snippet&channelId=${channelId}&order=date&type=video&maxResults=${maxResults}&key=${apiKey}`
-    );
+    const targetCount = Math.max(1, limit);
+    const eligible: YouTubeVideoItem[] = [];
+    const seenIds = new Set<string>();
+    let pageToken: string | undefined;
+    let remainingPages = 6;
 
-    if (!searchResponse.ok) {
-      console.error('Failed to search videos:', await searchResponse.text());
-      return [];
+    while (eligible.length < targetCount && remainingPages > 0) {
+      const searchUrl = new URL(`${YOUTUBE_API_URL}/search`);
+      searchUrl.searchParams.set('part', 'snippet');
+      searchUrl.searchParams.set('channelId', channelId);
+      searchUrl.searchParams.set('order', 'date');
+      searchUrl.searchParams.set('type', 'video');
+      searchUrl.searchParams.set('maxResults', String(Math.min(50, targetCount)));
+      searchUrl.searchParams.set('key', apiKey);
+      if (pageToken) {
+        searchUrl.searchParams.set('pageToken', pageToken);
+      }
+
+      const searchResponse = await fetch(searchUrl.toString());
+      if (!searchResponse.ok) {
+        console.error('Failed to search videos:', await searchResponse.text());
+        return [];
+      }
+
+      const searchData = (await searchResponse.json()) as YouTubeSearchResponse;
+      const searchItems: YouTubeSearchItem[] = searchData.items || [];
+
+      // Drop currently-live / upcoming live streams early (still keep VOD filtering below).
+      const nonLiveSearchItems = searchItems.filter(
+        (item) => item?.snippet?.liveBroadcastContent !== 'live' && item?.snippet?.liveBroadcastContent !== 'upcoming'
+      );
+
+      const pageVideoIds = nonLiveSearchItems
+        .map((item) => item.id.videoId)
+        .filter((id) => id && !seenIds.has(id));
+
+      pageVideoIds.forEach((id) => seenIds.add(id));
+
+      if (pageVideoIds.length > 0) {
+        const videosResponse = await fetch(
+          `${YOUTUBE_API_URL}/videos?part=snippet,statistics,contentDetails,liveStreamingDetails&id=${pageVideoIds.join(',')}&key=${apiKey}`
+        );
+
+        if (!videosResponse.ok) {
+          console.error('Failed to fetch video details:', await videosResponse.text());
+          return [];
+        }
+
+        const videosData = (await videosResponse.json()) as YouTubeVideosResponse;
+        const items: YouTubeVideoItem[] = videosData.items || [];
+
+        // Filter out Shorts and livestreams/replays
+        // Note: The YouTube API does not have a direct filter for "Videos only" (excluding Shorts and Live).
+        // - Shorts are filtered by duration (<= 180s).
+        // - Live streams are filtered by the presence of liveStreamingDetails.
+        // - WARNING: This also filters out finished Premieres, as they have liveStreamingDetails.
+        const filteredPage = items.filter((video) => {
+          const durationSeconds = parseDurationSeconds(video.contentDetails?.duration || '');
+          const isShort = durationSeconds > 0 && durationSeconds <= 180;
+          const isLiveOrUpcoming =
+            video.snippet?.liveBroadcastContent === 'live' ||
+            video.snippet?.liveBroadcastContent === 'upcoming';
+          const isLivestreamReplay = Boolean(video.liveStreamingDetails);
+
+          return !isShort && !isLiveOrUpcoming && !isLivestreamReplay;
+        });
+
+        eligible.push(...filteredPage);
+      }
+
+      pageToken = searchData.nextPageToken;
+      remainingPages -= 1;
+
+      if (!pageToken) {
+        break;
+      }
     }
 
-    const searchData = await searchResponse.json();
-    const searchItems: YouTubeSearchItem[] = searchData.items || [];
-
-    // Drop currently-live / upcoming live streams early (still keep VOD filtering below).
-    const nonLiveSearchItems = searchItems.filter(
-      (item) => item?.snippet?.liveBroadcastContent !== 'live' && item?.snippet?.liveBroadcastContent !== 'upcoming'
-    );
-
-    const videoIds = nonLiveSearchItems
-      .map((item) => item.id.videoId)
-      .filter(Boolean)
-      .join(',');
-
-    if (!videoIds) {
-      return [];
-    }
-
-    // Get detailed video info including statistics, duration, and live metadata
-    const videosResponse = await fetch(
-      `${YOUTUBE_API_URL}/videos?part=snippet,statistics,contentDetails,liveStreamingDetails&id=${videoIds}&key=${apiKey}`
-    );
-
-    if (!videosResponse.ok) {
-      console.error('Failed to fetch video details:', await videosResponse.text());
-      return [];
-    }
-
-    const videosData = await videosResponse.json();
-
-    const items: YouTubeVideoItem[] = videosData.items || [];
-
-    // Filter out Shorts and livestreams/replays
-    // Note: The YouTube API does not have a direct filter for "Videos only" (excluding Shorts and Live).
-    // - Shorts are filtered by duration (<= 180s).
-    // - Live streams are filtered by the presence of liveStreamingDetails.
-    // - WARNING: This also filters out finished Premieres, as they have liveStreamingDetails.
-    const filtered = items
-      .filter((video) => {
-        const durationSeconds = parseDurationSeconds(video.contentDetails?.duration || '');
-        const isShort = durationSeconds > 0 && durationSeconds <= 180;
-        const isLiveOrUpcoming =
-          video.snippet?.liveBroadcastContent === 'live' ||
-          video.snippet?.liveBroadcastContent === 'upcoming';
-        const isLivestreamReplay = Boolean(video.liveStreamingDetails);
-
-        return !isShort && !isLiveOrUpcoming && !isLivestreamReplay;
-      })
+    return eligible
       .sort(
         (a, b) =>
           new Date(b.snippet.publishedAt).getTime() - new Date(a.snippet.publishedAt).getTime()
       )
-      .slice(0, limit)
+      .slice(0, targetCount)
       .map((video) => ({
         video_id: video.id,
         title: video.snippet.title,
@@ -196,8 +225,6 @@ export async function fetchYouTubeVideos(limit = 10): Promise<YouTubeVideoData[]
         like_count: parseInt(video.statistics.likeCount || '0', 10),
         duration: parseDuration(video.contentDetails.duration),
       }));
-
-    return filtered;
 
   } catch (error) {
     console.error('Error fetching YouTube videos:', error);

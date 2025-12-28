@@ -303,6 +303,14 @@ export async function getYouTubeVideos(limit = 5): Promise<YouTubeVideo[]> {
   return result as YouTubeVideo[];
 }
 
+export async function getAllYouTubeVideos(): Promise<YouTubeVideo[]> {
+  const result = await sql`
+    SELECT * FROM youtube_videos
+    ORDER BY published_at DESC
+  `;
+  return result as YouTubeVideo[];
+}
+
 export async function clearYouTubeVideos(): Promise<void> {
   await sql`
     DELETE FROM youtube_videos

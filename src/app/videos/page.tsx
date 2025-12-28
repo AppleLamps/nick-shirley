@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getYouTubeVideos, YouTubeVideo } from '@/lib/db';
+import { getAllYouTubeVideos, YouTubeVideo } from '@/lib/db';
 import VideoCard from '@/components/VideoCard';
 
 export const metadata = {
@@ -14,7 +14,7 @@ export default async function VideosPage() {
   let videos: YouTubeVideo[] = [];
 
   try {
-    videos = await getYouTubeVideos(20);
+    videos = await getAllYouTubeVideos();
   } catch (error) {
     console.error('Error fetching videos:', error);
   }
