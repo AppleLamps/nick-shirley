@@ -4,11 +4,12 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
+import { Markdown } from '@tiptap/markdown';
 import { useCallback, useEffect } from 'react';
 
 interface RichTextEditorProps {
   content: string;
-  onChange: (html: string) => void;
+  onChange: (markdown: string) => void;
   placeholder?: string;
 }
 
@@ -31,21 +32,28 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
           class: 'max-w-full h-auto',
         },
       }),
+      Markdown.configure({
+        indentation: {
+          style: 'space',
+          size: 2,
+        },
+      }),
     ],
     content: content || '',
+    contentType: 'markdown',
     editorProps: {
       attributes: {
         class: 'prose prose-sm max-w-none min-h-[200px] p-3 focus:outline-none',
       },
     },
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
+      onChange(editor.getMarkdown());
     },
   });
 
   useEffect(() => {
-    if (editor && content !== editor.getHTML()) {
-      editor.commands.setContent(content || '');
+    if (editor && content !== editor.getMarkdown()) {
+      editor.commands.setContent(content || '', { contentType: 'markdown' });
     }
   }, [content, editor]);
 

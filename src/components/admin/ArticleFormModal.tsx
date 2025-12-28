@@ -204,7 +204,7 @@ export default function ArticleFormModal({
               </label>
               <RichTextEditor
                 content={formData.content}
-                onChange={(html) => setFormData((prev) => ({ ...prev, content: html }))}
+                onChange={(markdown) => setFormData((prev) => ({ ...prev, content: markdown }))}
                 placeholder="Write your article content..."
               />
             </div>
