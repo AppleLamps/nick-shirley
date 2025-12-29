@@ -6,7 +6,7 @@ import { getArticleBySlug } from '@/lib/db';
 import YouTubeEmbed from '@/components/YouTubeEmbed';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { ArticleJsonLd } from '@/components/JsonLd';
+import { ArticleJsonLd, BreadcrumbJsonLd } from '@/components/JsonLd';
 
 export const dynamic = 'force-dynamic';
 
@@ -209,6 +209,12 @@ export default async function ArticlePage({ params }: Props) {
 
   const articleUrl = `https://nickshirley.vercel.app/articles/${slug}`;
 
+  const breadcrumbItems = [
+    { name: 'Home', url: 'https://nickshirley.vercel.app' },
+    { name: 'Articles', url: 'https://nickshirley.vercel.app/articles' },
+    { name: article.title, url: articleUrl },
+  ];
+
   return (
     <>
       <ArticleJsonLd
@@ -220,9 +226,10 @@ export default async function ArticlePage({ params }: Props) {
         dateModified={new Date(article.updated_at).toISOString()}
         authorName="Nick Shirley"
       />
+      <BreadcrumbJsonLd items={breadcrumbItems} />
       <article className="max-w-[1000px] mx-auto px-4 py-12">
         {/* Breadcrumb */}
-        <nav className="mb-8 font-sans text-sm text-gray-500">
+        <nav className="mb-8 font-sans text-sm text-gray-500" aria-label="Breadcrumb">
         <Link href="/" className="hover:text-black">Home</Link>
         <span className="mx-3">/</span>
         <Link href="/articles" className="hover:text-black">Articles</Link>

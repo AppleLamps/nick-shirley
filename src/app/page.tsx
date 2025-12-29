@@ -2,7 +2,7 @@ import Link from 'next/link';
 import ArticleCard from '@/components/ArticleCard';
 import XFeed from '@/components/XFeed';
 import { getPublishedArticles, getFeaturedArticles } from '@/lib/db';
-import { PersonJsonLd, WebSiteJsonLd } from '@/components/JsonLd';
+import { PersonJsonLd, WebSiteJsonLd, FAQJsonLd } from '@/components/JsonLd';
 
 export const dynamic = 'force-dynamic';
 
@@ -75,6 +75,26 @@ export default async function Home() {
 
   const featuredArticle = featuredArticles[0];
 
+  // FAQ items to address common search queries
+  const faqItems = [
+    {
+      question: "Who is Nick Shirley?",
+      answer: "Nick Shirley is an independent journalist and YouTuber who travels the world to report on current events. He creates investigative documentaries and provides on-the-ground reporting from locations around the globe."
+    },
+    {
+      question: "Where is Nick Shirley now?",
+      answer: "Nick Shirley is actively creating content and reporting on current events. Follow his latest updates on YouTube (@nickshirley) and X (@nickshirleyy) for real-time location updates and new content."
+    },
+    {
+      question: "What happened to Nick Shirley?",
+      answer: "Nick Shirley continues to work as an independent journalist, producing documentaries and reporting from various locations worldwide. Check his YouTube channel and social media for his latest work and updates."
+    },
+    {
+      question: "How can I follow Nick Shirley?",
+      answer: "You can follow Nick Shirley on YouTube (@nickshirley), X/Twitter (@nickshirleyy), Instagram (@nickshirley), and Facebook. His official website is nickshirley.vercel.app."
+    },
+  ];
+
   return (
     <>
       <WebSiteJsonLd
@@ -95,6 +115,7 @@ export default async function Home() {
           "https://facebook.com/profile.php?id=61555695281120"
         ]}
       />
+      <FAQJsonLd items={faqItems} />
       <div className="max-w-[1600px] mx-auto px-4 py-12">
       {/* Featured Article */}
       {featuredArticle && (
