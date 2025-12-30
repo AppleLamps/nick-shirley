@@ -18,7 +18,21 @@ export default function Header() {
       {/* Top bar with date and social links */}
       <div className="border-b border-gray-100 py-2">
         <div className="max-w-7xl mx-auto px-4 flex justify-between items-center text-xs text-gray-500 font-sans">
-          <span>{currentDate}</span>
+          <div className="flex items-center gap-4">
+            <span>{currentDate}</span>
+            <span className="text-gray-300">|</span>
+            <span>
+              website made by{' '}
+              <a
+                href="https://x.com/lamps_apple"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-black transition-colors"
+              >
+                @lamps_apple
+              </a>
+            </span>
+          </div>
           <div className="flex items-center gap-4">
             <a
               href="https://youtube.com/@nickshirley"
