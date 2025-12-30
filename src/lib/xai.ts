@@ -265,3 +265,125 @@ export async function getLatestNewsAboutNick(): Promise<string> {
     return 'Unable to fetch latest updates at this time.';
   }
 }
+
+// News article interface for Live Search results
+export interface NewsArticle {
+  title: string;
+  summary: string;
+  source: string;
+  url: string;
+  published_at: string;
+}
+
+interface LiveSearchResponse {
+  id: string;
+  choices: Array<{
+    message: {
+      content: string;
+    };
+  }>;
+  citations?: string[];
+  usage?: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    num_sources_used?: number;
+  };
+}
+
+export async function searchNewsAboutNick(): Promise<{ articles: NewsArticle[]; summary: string; citations: string[] }> {
+  const apiKey = process.env.XAI_API_KEY;
+
+  if (!apiKey || apiKey === 'your_xai_api_key_here') {
+    throw new Error('XAI API key not configured');
+  }
+
+  const { fromDate, toDate } = getDateRange(30); // Last 30 days for news
+
+  try {
+    const response = await fetch(`${XAI_API_URL}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'grok-3-fast',
+        messages: [
+          {
+            role: 'user',
+            content: `Search for the most recent news articles about Nick Shirley, the independent journalist. Focus on mainstream media coverage, news articles, and press mentions.
+
+Your task:
+1. Find recent news articles that mention Nick Shirley
+2. Include articles about stories he's covered or places he's reported from
+3. Include any media appearances or interviews
+
+Return the results as a JSON object with this exact structure (no other text, just the JSON):
+{
+  "summary": "A 2-3 sentence overview of recent media coverage about Nick Shirley",
+  "articles": [
+    {
+      "title": "Article headline",
+      "summary": "Brief 1-2 sentence summary of what the article says about Nick",
+      "source": "Publication name",
+      "url": "article URL if available, or empty string",
+      "published_at": "YYYY-MM-DD or approximate date"
+    }
+  ]
+}
+
+If no news articles are found, return: {"summary": "No recent news articles found.", "articles": []}`
+          }
+        ],
+        search_parameters: {
+          mode: 'on',
+          sources: [
+            { type: 'news' },
+            { type: 'web' }
+          ],
+          from_date: fromDate,
+          to_date: toDate,
+          return_citations: true,
+          max_search_results: 20,
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`XAI Live Search API error: ${response.status} - ${error}`);
+    }
+
+    const data: LiveSearchResponse = await response.json();
+
+    // Extract the content from the response
+    const content = data.choices?.[0]?.message?.content || '';
+    const citations = data.citations || [];
+
+    // Try to parse the JSON response
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const sanitizedJson = jsonMatch[0]
+        .replace(/[\x00-\x1F\x7F]/g, ' ')
+        .replace(/\n/g, ' ')
+        .replace(/\r/g, ' ')
+        .replace(/\t/g, ' ');
+
+      const parsed = JSON.parse(sanitizedJson) as { summary: string; articles: NewsArticle[] };
+      return {
+        articles: parsed.articles || [],
+        summary: parsed.summary || 'No summary available.',
+        citations,
+      };
+    }
+
+    return {
+      articles: [],
+      summary: content || 'Unable to parse news results.',
+      citations,
+    };
+  } catch (error) {
+    console.error('Error searching news about Nick:', error);
+    throw error;
+  }
+}

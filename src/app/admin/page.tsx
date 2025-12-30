@@ -14,6 +14,20 @@ interface RefreshStatus {
   message: string;
 }
 
+interface NewsArticle {
+  title: string;
+  summary: string;
+  source: string;
+  url: string;
+  published_at: string;
+}
+
+interface NewsSearchResult {
+  summary: string;
+  articles: NewsArticle[];
+  citations: string[];
+}
+
 export default function AdminPage() {
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [password, setPassword] = useState('');
@@ -44,6 +58,11 @@ export default function AdminPage() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [showBulkOps, setShowBulkOps] = useState(false);
+
+  // News search state
+  const [newsSearching, setNewsSearching] = useState(false);
+  const [newsResult, setNewsResult] = useState<NewsSearchResult | null>(null);
+  const [newsError, setNewsError] = useState<string>('');
 
   const adminPassword = useMemo(() => process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin123', []);
 
@@ -268,6 +287,32 @@ export default function AdminPage() {
     }
   };
 
+  // News search handler
+  const handleNewsSearch = async () => {
+    setNewsSearching(true);
+    setNewsError('');
+    setNewsResult(null);
+
+    try {
+      const response = await fetch('/api/admin/news-search', { method: 'POST' });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Search failed');
+      }
+
+      setNewsResult({
+        summary: data.summary,
+        articles: data.articles,
+        citations: data.citations,
+      });
+    } catch (error) {
+      setNewsError(error instanceof Error ? error.message : 'Failed to search news');
+    } finally {
+      setNewsSearching(false);
+    }
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-10">
       <div className="border-t-4 border-black pt-6 mb-8">
@@ -338,6 +383,100 @@ export default function AdminPage() {
                   </div>
                 ))}
               </div>
+            </div>
+          </section>
+
+          {/* In the News Section */}
+          <section className="border border-gray-200">
+            <div className="border-b border-gray-200 px-6 py-4">
+              <h2 className="font-bold text-lg">In the News</h2>
+              <p className="text-xs text-gray-500 font-sans">Search for recent media coverage about Nick Shirley</p>
+            </div>
+
+            <div className="p-6">
+              <div className="flex items-center gap-4 mb-6">
+                <button
+                  onClick={handleNewsSearch}
+                  disabled={newsSearching}
+                  className="px-4 py-2 bg-black text-white text-sm font-sans font-bold hover:bg-gray-800 disabled:bg-gray-400"
+                >
+                  {newsSearching ? 'Searching...' : 'Search News'}
+                </button>
+                {newsSearching && (
+                  <span className="text-sm text-gray-500 font-sans">
+                    Using AI to search for news articles...
+                  </span>
+                )}
+              </div>
+
+              {newsError && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 text-sm font-sans">
+                  {newsError}
+                </div>
+              )}
+
+              {newsResult && (
+                <div className="space-y-6">
+                  {/* Summary */}
+                  <div className="p-4 bg-gray-50 border border-gray-200">
+                    <h3 className="font-bold text-sm mb-2">Summary</h3>
+                    <p className="text-sm text-gray-700 font-sans">{newsResult.summary}</p>
+                  </div>
+
+                  {/* Articles */}
+                  {newsResult.articles.length > 0 ? (
+                    <div className="space-y-4">
+                      <h3 className="font-bold text-sm">Articles Found ({newsResult.articles.length})</h3>
+                      {newsResult.articles.map((article, index) => (
+                        <div key={index} className="border border-gray-200 p-4">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1">
+                              <h4 className="font-bold text-sm mb-1">{article.title}</h4>
+                              <p className="text-xs text-gray-500 font-sans mb-2">
+                                {article.source} {article.published_at && `• ${article.published_at}`}
+                              </p>
+                              <p className="text-sm text-gray-700 font-sans">{article.summary}</p>
+                            </div>
+                            {article.url && (
+                              <a
+                                href={article.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-blue-600 hover:underline font-sans whitespace-nowrap"
+                              >
+                                View Article →
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-500 font-sans">No articles found.</p>
+                  )}
+
+                  {/* Citations */}
+                  {newsResult.citations.length > 0 && (
+                    <div className="mt-6 pt-4 border-t border-gray-200">
+                      <h3 className="font-bold text-xs mb-2 text-gray-500">Sources</h3>
+                      <ul className="space-y-1">
+                        {newsResult.citations.map((citation, index) => (
+                          <li key={index}>
+                            <a
+                              href={citation}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-blue-600 hover:underline font-sans break-all"
+                            >
+                              {citation}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </section>
 

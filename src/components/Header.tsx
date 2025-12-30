@@ -99,6 +99,11 @@ export default function Header() {
               </Link>
             </li>
             <li>
+              <Link href="/in-the-news" className="block py-2 md:py-0 hover:underline">
+                In the News
+              </Link>
+            </li>
+            <li>
               <Link href="/about" className="block py-2 md:py-0 hover:underline">
                 About
               </Link>
