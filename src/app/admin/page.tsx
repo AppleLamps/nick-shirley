@@ -6,7 +6,7 @@ import ArticleTable from '@/components/admin/ArticleTable';
 import ArticleFormModal from '@/components/admin/ArticleFormModal';
 import DeleteConfirmModal from '@/components/admin/DeleteConfirmModal';
 
-type RefreshKey = 'xPosts' | 'xMentions' | 'youtubeVideos' | 'videoSummaries';
+type RefreshKey = 'xPosts' | 'xMentions' | 'youtubeVideos' | 'videoSummaries' | 'newsArticles';
 
 interface RefreshStatus {
   loading: boolean;
@@ -39,6 +39,7 @@ export default function AdminPage() {
     xMentions: { loading: false, success: null, message: '' },
     youtubeVideos: { loading: false, success: null, message: '' },
     videoSummaries: { loading: false, success: null, message: '' },
+    newsArticles: { loading: false, success: null, message: '' },
   });
 
   const [articleMessage, setArticleMessage] = useState<string>('');
@@ -108,6 +109,7 @@ export default function AdminPage() {
         xMentions: '/api/admin/refresh/x-mentions',
         youtubeVideos: '/api/admin/refresh/youtube-videos',
         videoSummaries: '/api/admin/refresh/video-summaries',
+        newsArticles: '/api/admin/refresh/news-articles',
       };
 
       const response = await fetch(endpoints[type], { method: 'POST' });
@@ -350,27 +352,29 @@ export default function AdminPage() {
             </div>
 
             <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {(['xPosts', 'xMentions', 'youtubeVideos', 'videoSummaries'] as RefreshKey[]).map((key) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {(['xPosts', 'xMentions', 'youtubeVideos', 'videoSummaries', 'newsArticles'] as RefreshKey[]).map((key) => (
                   <div key={key} className="border border-gray-200 p-4">
                     <h3 className="font-bold text-sm">
                       {key === 'xPosts' && 'X Posts'}
                       {key === 'xMentions' && 'X Mentions'}
                       {key === 'youtubeVideos' && 'YouTube Videos'}
                       {key === 'videoSummaries' && 'Video Summaries'}
+                      {key === 'newsArticles' && 'News Articles'}
                     </h3>
                     <p className="text-xs text-gray-500 font-sans mt-0.5 mb-3">
                       {key === 'xPosts' && "Nick's posts via xAI"}
                       {key === 'xMentions' && 'What people say about Nick'}
                       {key === 'youtubeVideos' && 'Latest videos from channel'}
                       {key === 'videoSummaries' && 'Regenerate all video summaries'}
+                      {key === 'newsArticles' && 'Media coverage from news sites'}
                     </p>
                     <button
                       onClick={() => handleRefresh(key)}
                       disabled={refreshStatus[key].loading}
                       className="w-full px-3 py-2 bg-black text-white text-xs font-sans font-bold hover:bg-gray-800 disabled:bg-gray-400"
                     >
-                      {refreshStatus[key].loading ? (key === 'videoSummaries' ? 'Generating...' : 'Refreshing...') : 'Refresh'}
+                      {refreshStatus[key].loading ? (key === 'videoSummaries' ? 'Generating...' : key === 'newsArticles' ? 'Searching...' : 'Refreshing...') : 'Refresh'}
                     </button>
                     {refreshStatus[key].message && (
                       <p

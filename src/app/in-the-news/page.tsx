@@ -1,50 +1,101 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface NewsArticle {
+  id?: number;
+  article_url?: string;
   title: string;
   summary: string;
   source: string;
-  url: string;
-  published_at: string;
+  url?: string;
+  published_at: string | null;
+  fetched_at?: string;
 }
 
 interface NewsSearchResult {
   summary: string;
   articles: NewsArticle[];
   citations: string[];
+  lastFetchedAt?: string;
+  cached?: boolean;
 }
 
 export default function InTheNewsPage() {
-  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [result, setResult] = useState<NewsSearchResult | null>(null);
   const [error, setError] = useState<string>('');
-  const [hasSearched, setHasSearched] = useState(false);
 
-  const handleSearch = async () => {
-    setLoading(true);
-    setError('');
-    setHasSearched(true);
-
+  // Load cached news on mount
+  const loadCachedNews = useCallback(async () => {
     try {
-      const response = await fetch('/api/admin/news-search', { method: 'POST' });
+      setError('');
+
+      const response = await fetch('/api/news/articles');
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Search failed');
+        throw new Error(data.error || 'Failed to load news');
       }
 
-      setResult({
-        summary: data.summary,
-        articles: data.articles,
-        citations: data.citations,
-      });
+      // Only set result if we have articles
+      if (data.articles && data.articles.length > 0) {
+        setResult({
+          summary: data.summary,
+          articles: data.articles.map((a: NewsArticle) => ({
+            ...a,
+            url: a.article_url || a.url,
+          })),
+          citations: data.citations || [],
+          lastFetchedAt: data.lastFetchedAt,
+          cached: data.cached,
+        });
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to search news');
+      // Don't show error on initial load if no cached data
+      console.error('Error loading cached news:', err);
     } finally {
-      setLoading(false);
+      setInitialLoading(false);
     }
+  }, []);
+
+  useEffect(() => {
+    loadCachedNews();
+  }, [loadCachedNews]);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    setError('');
+
+    try {
+      // Trigger refresh of cached data
+      const response = await fetch('/api/admin/refresh/news-articles', { method: 'POST' });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Refresh failed');
+      }
+
+      // Reload cached data after refresh
+      await loadCachedNews();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to refresh news');
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const formatLastUpdated = (dateString?: string) => {
+    if (!dateString) return null;
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+    });
   };
 
   return (
@@ -61,19 +112,32 @@ export default function InTheNewsPage() {
       <div className="mb-12">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <button
-            onClick={handleSearch}
-            disabled={loading}
+            onClick={handleRefresh}
+            disabled={refreshing || initialLoading}
             className="px-6 py-3 bg-black text-white text-sm font-sans font-bold hover:bg-gray-800 disabled:bg-gray-400 transition-colors"
           >
-            {loading ? 'Searching...' : 'Find Latest News Coverage'}
+            {refreshing ? 'Searching...' : result ? 'Refresh News' : 'Find Latest News Coverage'}
           </button>
-          {loading && (
+          {refreshing && (
             <span className="text-sm text-gray-500 font-sans">
               Using AI to search for recent news articles...
             </span>
           )}
+          {result?.lastFetchedAt && !refreshing && (
+            <span className="text-sm text-gray-500 font-sans">
+              Last updated: {formatLastUpdated(result.lastFetchedAt)}
+            </span>
+          )}
         </div>
       </div>
+
+      {/* Initial Loading State */}
+      {initialLoading && (
+        <div className="text-center py-16">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-black border-r-transparent mb-4"></div>
+          <p className="text-gray-500 font-sans">Loading cached news...</p>
+        </div>
+      )}
 
       {/* Error Display */}
       {error && (
@@ -83,7 +147,7 @@ export default function InTheNewsPage() {
       )}
 
       {/* Results */}
-      {result && (
+      {!initialLoading && result && (
         <div className="space-y-8">
           {/* Summary Section */}
           <div className="border-l-4 border-black pl-6 py-2">
@@ -91,14 +155,14 @@ export default function InTheNewsPage() {
           </div>
 
           {/* Articles Grid */}
-          {result.articles.length > 0 ? (
+          {result.articles.length > 0 && (
             <div className="space-y-6">
               <h2 className="text-xl font-bold font-headline border-b-2 border-black pb-2">
                 News Articles ({result.articles.length})
               </h2>
               <div className="divide-y divide-gray-200">
                 {result.articles.map((article, index) => (
-                  <article key={index} className="py-6 first:pt-0 last:pb-0">
+                  <article key={article.article_url || index} className="py-6 first:pt-0 last:pb-0">
                     <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                       <div className="flex-1">
                         <h3 className="text-lg font-bold mb-2 font-headline">
@@ -141,13 +205,7 @@ export default function InTheNewsPage() {
                 ))}
               </div>
             </div>
-          ) : hasSearched && !loading ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500 font-sans">
-                No news articles found. Try searching again later.
-              </p>
-            </div>
-          ) : null}
+          )}
 
           {/* Sources Section */}
           {result.citations.length > 0 && (
@@ -174,8 +232,8 @@ export default function InTheNewsPage() {
         </div>
       )}
 
-      {/* Empty State before search */}
-      {!hasSearched && !loading && (
+      {/* Empty State - no cached data */}
+      {!initialLoading && !result && !refreshing && (
         <div className="text-center py-16 border border-gray-200">
           <p className="text-gray-500 font-sans mb-4">
             Click the button above to search for recent news coverage about Nick Shirley.

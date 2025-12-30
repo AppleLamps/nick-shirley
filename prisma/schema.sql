@@ -81,6 +81,25 @@ CREATE TABLE IF NOT EXISTS settings (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- News articles cache for media coverage about Nick
+CREATE TABLE IF NOT EXISTS news_articles (
+    id SERIAL PRIMARY KEY,
+    article_url VARCHAR(1000) UNIQUE NOT NULL,
+    title VARCHAR(500) NOT NULL,
+    summary TEXT,
+    source VARCHAR(200) NOT NULL,
+    published_at DATE,
+    fetched_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Store the AI-generated overall summary from news searches
+CREATE TABLE IF NOT EXISTS news_search_metadata (
+    id SERIAL PRIMARY KEY,
+    summary TEXT NOT NULL,
+    citations TEXT[],
+    fetched_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Create indexes for better query performance
 CREATE INDEX IF NOT EXISTS idx_articles_published ON articles(published, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_articles_slug ON articles(slug);
@@ -88,6 +107,7 @@ CREATE INDEX IF NOT EXISTS idx_articles_featured ON articles(featured, created_a
 CREATE INDEX IF NOT EXISTS idx_x_posts_posted_at ON x_posts(posted_at DESC);
 CREATE INDEX IF NOT EXISTS idx_x_mentions_posted_at ON x_mentions(posted_at DESC);
 CREATE INDEX IF NOT EXISTS idx_youtube_videos_published_at ON youtube_videos(published_at DESC);
+CREATE INDEX IF NOT EXISTS idx_news_articles_published_at ON news_articles(published_at DESC);
 
 -- Insert default settings
 INSERT INTO settings (key, value) VALUES

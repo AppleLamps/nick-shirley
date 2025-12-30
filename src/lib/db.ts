@@ -79,6 +79,23 @@ export interface YouTubeTranscript {
   created_at: Date;
 }
 
+export interface NewsArticle {
+  id: number;
+  article_url: string;
+  title: string;
+  summary: string | null;
+  source: string;
+  published_at: Date | null;
+  fetched_at: Date;
+}
+
+export interface NewsSearchMetadata {
+  id: number;
+  summary: string;
+  citations: string[] | null;
+  fetched_at: Date;
+}
+
 // Database query helpers
 export async function getPublishedArticles(limit = 10): Promise<Article[]> {
   const result = await sql`
@@ -360,5 +377,56 @@ export async function saveTranscript(
       full_text = EXCLUDED.full_text,
       segments = EXCLUDED.segments,
       duration_seconds = EXCLUDED.duration_seconds
+  `;
+}
+
+// News articles helpers
+export async function getNewsArticles(limit = 20): Promise<NewsArticle[]> {
+  const result = await sql`
+    SELECT * FROM news_articles
+    ORDER BY published_at DESC NULLS LAST, fetched_at DESC
+    LIMIT ${limit}
+  `;
+  return result as NewsArticle[];
+}
+
+export async function getNewsSearchMetadata(): Promise<NewsSearchMetadata | null> {
+  const result = await sql`
+    SELECT * FROM news_search_metadata
+    ORDER BY fetched_at DESC
+    LIMIT 1
+  `;
+  return (result[0] as NewsSearchMetadata) || null;
+}
+
+export async function getLastFetchedAtForNews(): Promise<Date | null> {
+  const result = await sql`
+    SELECT MAX(fetched_at) AS fetched_at
+    FROM news_articles
+  `;
+  const fetchedAt = result[0]?.fetched_at;
+  return fetchedAt ? new Date(fetchedAt) : null;
+}
+
+export async function upsertNewsArticle(article: Omit<NewsArticle, 'id' | 'fetched_at'>): Promise<void> {
+  await sql`
+    INSERT INTO news_articles (article_url, title, summary, source, published_at, fetched_at)
+    VALUES (${article.article_url}, ${article.title}, ${article.summary}, ${article.source}, ${article.published_at}, CURRENT_TIMESTAMP)
+    ON CONFLICT (article_url)
+    DO UPDATE SET
+      title = EXCLUDED.title,
+      summary = EXCLUDED.summary,
+      source = EXCLUDED.source,
+      published_at = EXCLUDED.published_at,
+      fetched_at = CURRENT_TIMESTAMP
+  `;
+}
+
+export async function upsertNewsSearchMetadata(summary: string, citations: string[]): Promise<void> {
+  // Delete old metadata and insert new (keep only most recent)
+  await sql`DELETE FROM news_search_metadata`;
+  await sql`
+    INSERT INTO news_search_metadata (summary, citations, fetched_at)
+    VALUES (${summary}, ${citations}, CURRENT_TIMESTAMP)
   `;
 }
