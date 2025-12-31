@@ -3,8 +3,37 @@ import { getAllYouTubeVideos, YouTubeVideo } from '@/lib/db';
 import VideoCard from '@/components/VideoCard';
 
 export const metadata = {
-  title: 'Videos | Nick Shirley',
-  description: 'Watch documentaries, reports, and behind-the-scenes content from independent journalist Nick Shirley.',
+  title: 'YouTube Videos & Documentaries | Nick Shirley - YouTuber & Journalist',
+  description: 'Watch investigative documentaries, reports, and behind-the-scenes content from YouTuber and independent journalist Nick Shirley. Subscribe to his YouTube channel with over 1 million subscribers.',
+  keywords: [
+    'Nick Shirley YouTube',
+    'Nick Shirley YouTuber',
+    'Nick Shirley videos',
+    'Nick Shirley documentary',
+    'Nick Shirley YouTuber biography',
+    'nickshirley YouTube',
+    'Nick Shirley channel',
+  ],
+  openGraph: {
+    title: 'Nick Shirley YouTube Videos & Documentaries',
+    description: 'Watch investigative documentaries and reports from YouTuber Nick Shirley with over 1 million subscribers.',
+    url: 'https://nickshirley.vercel.app/videos',
+    type: 'website',
+    images: [
+      {
+        url: '/nick.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Nick Shirley - YouTube Videos and Documentaries',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Nick Shirley YouTube Videos',
+    description: 'Watch investigative documentaries from YouTuber Nick Shirley.',
+    images: ['/nick.jpg'],
+  },
 };
 
 export const dynamic = 'force-dynamic';

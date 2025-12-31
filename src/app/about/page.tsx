@@ -1,12 +1,75 @@
 import Link from 'next/link';
+import { PersonJsonLd, FAQJsonLd } from '@/components/JsonLd';
 
 export const metadata = {
-  title: 'About | Nick Shirley',
-  description: 'Learn more about Nick Shirley, an independent journalist who travels the world to report on current events.',
+  title: 'About & Biography | Nick Shirley - Independent Journalist & YouTuber',
+  description: 'Read the full biography of Nick Shirley, an independent journalist, reporter, and YouTuber with over 1 million subscribers. Learn about his background, investigative reporting, documentary work, and journalism career.',
+  keywords: [
+    'Nick Shirley biography',
+    'Nick Shirley bio',
+    'who is Nick Shirley',
+    'Nick Shirley journalist',
+    'Nick Shirley reporter',
+    'Nick Shirley YouTuber',
+    'Nick Shirley background',
+    'Nick Shirley journalist biography',
+    'independent journalist bio',
+  ],
+  openGraph: {
+    title: 'Nick Shirley Biography - Independent Journalist & YouTuber',
+    description: 'Read the full biography of Nick Shirley, an independent journalist and YouTuber with over 1 million subscribers. Learn about his investigative reporting and documentary work.',
+    url: 'https://nickshirley.vercel.app/about',
+    type: 'profile',
+    images: [
+      {
+        url: '/nick.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Nick Shirley - Independent Journalist Biography',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Nick Shirley Biography - Independent Journalist & YouTuber',
+    description: 'Read the full biography of Nick Shirley, independent journalist and YouTuber with over 1M subscribers.',
+    images: ['/nick.jpg'],
+  },
 };
 
 export default function AboutPage() {
+  // Biography-focused FAQ items for this page
+  const aboutFaqItems = [
+    {
+      question: "What is Nick Shirley's biography?",
+      answer: "Nick Shirley is a 23-year-old independent journalist, reporter, and YouTuber with over 1 million subscribers. He began creating content in 2017, pivoted to investigative journalism in 2024, and gained viral fame in 2025 for his Minnesota childcare fraud investigation. He covers immigration, government accountability, and public safety issues."
+    },
+    {
+      question: "What is Nick Shirley's background?",
+      answer: "Nick Shirley started as a content creator making entertainment videos around 2017-2019. He transitioned to investigative journalism in 2024, focusing on topics like immigration, urban crime, and government fraud. He has reported from New York City, El Salvador, Portland, and Minnesota."
+    },
+    {
+      question: "What are Nick Shirley's credentials?",
+      answer: "Nick Shirley is an independent journalist with over 1 million YouTube subscribers and 372,000 X followers. His work has been featured on Fox News programs including Jesse Watters Primetime and The Ingraham Angle, as well as Timcast IRL and C-SPAN."
+    },
+  ];
+
   return (
+    <>
+      <PersonJsonLd
+        name="Nick Shirley"
+        description="Independent journalist, reporter, and YouTuber with over 1 million subscribers who travels the world to report on current events. Creator of investigative documentaries and on-the-ground reporting covering government fraud, immigration, and public safety."
+        url="https://nickshirley.vercel.app/about"
+        image="https://nickshirley.vercel.app/nick.jpg"
+        jobTitle="Independent Journalist"
+        sameAs={[
+          "https://youtube.com/@NickShirley",
+          "https://x.com/nickshirleyy",
+          "https://instagram.com/nickshirley",
+          "https://facebook.com/profile.php?id=61555695281120"
+        ]}
+      />
+      <FAQJsonLd items={aboutFaqItems} />
     <div className="max-w-[1200px] mx-auto px-4 py-12">
       {/* Page Header */}
       <div className="border-t-4 border-black pt-8 mb-16">
@@ -229,5 +292,6 @@ export default function AboutPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }
