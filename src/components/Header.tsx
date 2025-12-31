@@ -43,7 +43,7 @@ export default function Header() {
               YouTube
             </a>
             <a
-              href="https://x.com/nickshirley"
+              href="https://x.com/nickshirleyy"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-black transition-colors"
