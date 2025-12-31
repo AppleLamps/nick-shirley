@@ -3,6 +3,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { OrganizationJsonLd } from "@/components/JsonLd";
+import BreakingNewsBanner from "@/components/BreakingNewsBanner";
 
 const BASE_URL = "https://nickshirley.vercel.app";
 
@@ -94,6 +95,7 @@ export default function RootLayout({
       </head>
       <body className="antialiased bg-white">
         <OrganizationJsonLd />
+        <BreakingNewsBanner />
         <div className="min-h-screen flex flex-col">
           <Header />
           <main className="flex-1">
