@@ -4,8 +4,38 @@ import { getPublishedArticles } from '@/lib/db';
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: 'Articles | Nick Shirley',
-  description: 'Latest articles, updates, and reports from independent journalist Nick Shirley.',
+  title: 'Latest Articles & News Updates | Nick Shirley - Independent Journalist',
+  description: 'Read the latest articles, breaking news updates, and investigative reports from independent journalist and reporter Nick Shirley. Stay current with his newest stories and real-time coverage.',
+  keywords: [
+    'Nick Shirley latest',
+    'Nick Shirley news',
+    'Nick Shirley articles',
+    'Nick Shirley updates',
+    'Nick Shirley reports',
+    'nickshirley latest',
+    'Nick Shirley journalist latest',
+    'Nick Shirley reporter latest',
+  ],
+  openGraph: {
+    title: 'Latest Articles & Updates from Nick Shirley',
+    description: 'Read the latest investigative reports and breaking news from independent journalist Nick Shirley.',
+    url: 'https://nickshirley.vercel.app/articles',
+    type: 'website',
+    images: [
+      {
+        url: '/nick.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Nick Shirley - Latest Articles and News',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Latest Articles from Nick Shirley',
+    description: 'Breaking news and investigative reports from independent journalist Nick Shirley.',
+    images: ['/nick.jpg'],
+  },
 };
 
 // Sample articles for initial display when database is empty

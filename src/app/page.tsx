@@ -79,19 +79,31 @@ export default async function Home() {
   const faqItems = [
     {
       question: "Who is Nick Shirley?",
-      answer: "Nick Shirley is an independent journalist and YouTuber who travels the world to report on current events. He creates investigative documentaries and provides on-the-ground reporting from locations around the globe."
+      answer: "Nick Shirley is an independent journalist, reporter, and YouTuber with over 1 million subscribers who travels the world to report on current events. He creates investigative documentaries and provides on-the-ground reporting from locations around the globe, covering topics like government fraud, immigration, and public safety."
+    },
+    {
+      question: "What is Nick Shirley's biography?",
+      answer: "Nick Shirley is a 23-year-old independent journalist and YouTuber who began creating content in 2017. He pivoted to investigative journalism in 2024, covering immigration, urban crime, and government accountability. His reporting on the Minnesota childcare fraud scandal went viral in 2025. He has over 1 million YouTube subscribers and 372,000 followers on X."
+    },
+    {
+      question: "Is Nick Shirley a reporter?",
+      answer: "Yes, Nick Shirley is an independent reporter and journalist who conducts on-the-ground investigative reporting. He has reported from locations including New York City, El Salvador's CECOT prison, Portland protests, and Minnesota. His work has been featured on Fox News, Timcast IRL, and C-SPAN."
+    },
+    {
+      question: "Is Nick Shirley a YouTuber?",
+      answer: "Yes, Nick Shirley is a YouTuber with over 1 million subscribers. He creates investigative documentaries and reports on current events. His YouTube channel features in-depth coverage of topics like government fraud, immigration issues, and on-the-ground reporting from around the world."
     },
     {
       question: "Where is Nick Shirley now?",
-      answer: "Nick Shirley is actively creating content and reporting on current events. Follow his latest updates on YouTube (@nickshirley) and X (@nickshirleyy) for real-time location updates and new content."
+      answer: "Nick Shirley is actively creating content and reporting on current events. Follow his latest updates on YouTube (@NickShirley) and X (@nickshirleyy) for real-time location updates and new content."
     },
     {
       question: "What happened to Nick Shirley?",
-      answer: "Nick Shirley continues to work as an independent journalist, producing documentaries and reporting from various locations worldwide. Check his YouTube channel and social media for his latest work and updates."
+      answer: "Nick Shirley continues to work as an independent journalist and YouTuber, producing documentaries and reporting from various locations worldwide. Check his YouTube channel and social media for his latest work and updates."
     },
     {
       question: "How can I follow Nick Shirley?",
-      answer: "You can follow Nick Shirley on YouTube (@nickshirley), X/Twitter (@nickshirleyy), Instagram (@nickshirley), and Facebook. His official website is nickshirley.vercel.app."
+      answer: "You can follow Nick Shirley on YouTube (@NickShirley), X/Twitter (@nickshirleyy), Instagram (@nickshirley), and Facebook. His official website is nickshirley.vercel.app where you can find his latest articles, videos, and updates."
     },
   ];
 
@@ -213,7 +225,7 @@ export default async function Home() {
           </div>
           <div className="flex gap-6 justify-center md:justify-end">
             <a
-              href="https://youtube.com/@nickshirley"
+              href="https://youtube.com/@NickShirley"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 border-2 border-black px-6 py-3 hover:bg-black hover:text-white transition-colors font-sans text-sm font-bold"
