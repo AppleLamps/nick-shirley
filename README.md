@@ -56,7 +56,9 @@ Edit `.env.local` with your credentials:
 DATABASE_URL=your_neon_database_url
 XAI_API_KEY=your_xai_api_key
 NEXT_PUBLIC_BASE_URL=http://localhost:3000
-NEXT_PUBLIC_ADMIN_PASSWORD=admin123
+ADMIN_PASSWORD=your_strong_admin_password
+RATE_LIMIT_MAX=30
+RATE_LIMIT_WINDOW_MS=60000
 ```
 
 1. Initialize the database:
@@ -115,7 +117,7 @@ scripts/
 
 Access the admin panel at `/admin`.
 
-- **Password**: Set via `NEXT_PUBLIC_ADMIN_PASSWORD` (default: `admin123`).
+- **Password**: Set via `ADMIN_PASSWORD` (server-side only).
 - **Features**:
   - **Feed Refresh**: Manually trigger updates for X posts, mentions, and YouTube videos.
   - **Article Manager**: Import/Export articles via JSON.

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Article } from '@/lib/db';
 import ArticleTable from '@/components/admin/ArticleTable';
 import ArticleFormModal from '@/components/admin/ArticleFormModal';
@@ -32,6 +32,7 @@ export default function AdminPage() {
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [authenticating, setAuthenticating] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [refreshStatus, setRefreshStatus] = useState<Record<RefreshKey, RefreshStatus>>({
@@ -65,12 +66,28 @@ export default function AdminPage() {
   const [newsResult, setNewsResult] = useState<NewsSearchResult | null>(null);
   const [newsError, setNewsError] = useState<string>('');
 
-  const adminPassword = useMemo(() => process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin123', []);
+  const authFetch = useCallback(
+    async (input: RequestInfo, init: RequestInit = {}) => {
+      const response = await fetch(input, {
+        ...init,
+        credentials: 'include',
+        headers: init.headers,
+      });
+
+      if (response.status === 401) {
+        setIsUnlocked(false);
+        setError('Session expired. Please re-enter your password.');
+      }
+
+      return response;
+    },
+    [setIsUnlocked, setError]
+  );
 
   const fetchArticles = useCallback(async () => {
     try {
       setArticlesLoading(true);
-      const res = await fetch('/api/admin/articles');
+      const res = await authFetch('/api/admin/articles');
       const data = await res.json();
       if (data.success) {
         setArticles(data.articles);
@@ -88,12 +105,30 @@ export default function AdminPage() {
     }
   }, [isUnlocked, fetchArticles]);
 
-  const handleUnlock = () => {
-    if (password === adminPassword) {
+  const handleUnlock = async () => {
+    setAuthenticating(true);
+    setError('');
+
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || 'Incorrect password');
+        return;
+      }
+
       setIsUnlocked(true);
-      setError('');
-    } else {
-      setError('Incorrect password');
+      setPassword('');
+    } catch (err) {
+      console.error('Login failed:', err);
+      setError('Login failed. Please try again.');
+    } finally {
+      setAuthenticating(false);
     }
   };
 
@@ -112,7 +147,7 @@ export default function AdminPage() {
         newsArticles: '/api/admin/refresh/news-articles',
       };
 
-      const response = await fetch(endpoints[type], { method: 'POST' });
+      const response = await authFetch(endpoints[type], { method: 'POST' });
       const data = await response.json();
 
       setRefreshStatus(prev => ({
@@ -137,7 +172,7 @@ export default function AdminPage() {
     setArticleMessageTone('neutral');
 
     try {
-      const res = await fetch('/api/admin/articles/export');
+      const res = await authFetch('/api/admin/articles/export');
       const data = await res.json();
 
       if (!res.ok) {
@@ -173,7 +208,7 @@ export default function AdminPage() {
 
     try {
       const text = await file.text();
-      const res = await fetch('/api/admin/articles/import', {
+      const res = await authFetch('/api/admin/articles/import', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: text,
@@ -206,7 +241,7 @@ export default function AdminPage() {
     setArticleMessageTone('neutral');
 
     try {
-      const res = await fetch('/api/admin/articles/purge', { method: 'POST' });
+      const res = await authFetch('/api/admin/articles/purge', { method: 'POST' });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Delete failed');
       setArticleMessage('All articles deleted.');
@@ -241,7 +276,7 @@ export default function AdminPage() {
     try {
       if (editingArticle) {
         // Update existing article
-        const res = await fetch(`/api/admin/articles/${editingArticle.id}`, {
+        const res = await authFetch(`/api/admin/articles/${editingArticle.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(articleData),
@@ -250,7 +285,7 @@ export default function AdminPage() {
         if (!res.ok) throw new Error(data.error || 'Update failed');
       } else {
         // Create new article
-        const res = await fetch('/api/admin/articles', {
+        const res = await authFetch('/api/admin/articles', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(articleData),
@@ -273,7 +308,7 @@ export default function AdminPage() {
     if (!deletingArticle) return;
     setDeleting(true);
     try {
-      const res = await fetch(`/api/admin/articles/${deletingArticle.id}`, {
+      const res = await authFetch(`/api/admin/articles/${deletingArticle.id}`, {
         method: 'DELETE',
       });
       const data = await res.json();
@@ -296,7 +331,7 @@ export default function AdminPage() {
     setNewsResult(null);
 
     try {
-      const response = await fetch('/api/admin/news-search', { method: 'POST' });
+      const response = await authFetch('/api/admin/news-search', { method: 'POST' });
       const data = await response.json();
 
       if (!response.ok) {
@@ -337,9 +372,10 @@ export default function AdminPage() {
           {error && <p className="text-sm text-red-500 font-sans mt-2">{error}</p>}
           <button
             onClick={handleUnlock}
+            disabled={authenticating}
             className="mt-4 w-full bg-black text-white py-2 font-sans text-sm font-bold hover:bg-gray-800"
           >
-            Unlock
+            {authenticating ? 'Unlocking...' : 'Unlock'}
           </button>
         </div>
       ) : (
