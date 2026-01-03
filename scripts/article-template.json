@@ -1,0 +1,155 @@
+{
+  "_comment": "ARTICLE JSON TEMPLATE - Nick Shirley Portfolio",
+  "_description": "Use this template to create articles. Replace placeholder values with actual content.",
+  "_note": "All fields with * are required. Fields without defaults are optional.",
+  
+  "template": {
+    "title": "Your Article Title Here",
+    "slug": "your-article-slug-here",
+    "excerpt": "A brief summary of your article (optional)",
+    "content": "Your main article content here. Supports Markdown formatting.\n\n## Heading\n\n**Bold text** and *italic text* are supported.\n\n- List item 1\n- List item 2\n\n> Blockquotes\n\n[Link text](url)",
+    "featured_image": null,
+    "category": "update",
+    "source_type": "original",
+    "source_url": null,
+    "published": false,
+    "featured": false,
+    "created_at": "2026-01-03T00:00:00Z"
+  },
+
+  "field_descriptions": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "max_length": 500,
+      "description": "The headline/title of the article"
+    },
+    "slug": {
+      "type": "string",
+      "required": true,
+      "max_length": 500,
+      "unique": true,
+      "description": "URL-friendly identifier (lowercase, hyphens instead of spaces)"
+    },
+    "excerpt": {
+      "type": "string",
+      "required": false,
+      "description": "Brief summary displayed in article cards and SEO metadata"
+    },
+    "content": {
+      "type": "string",
+      "required": true,
+      "description": "Full article content. Supports Markdown for formatting"
+    },
+    "featured_image": {
+      "type": "string",
+      "required": false,
+      "max_length": 1000,
+      "description": "URL to the article's cover/featured image",
+      "example": "/public/image.jpg or https://example.com/image.jpg"
+    },
+    "category": {
+      "type": "string",
+      "required": false,
+      "default": "update",
+      "max_length": 100,
+      "description": "Article category for organization",
+      "examples": ["update", "video", "analysis", "investigation", "news", "transcript"]
+    },
+    "source_type": {
+      "type": "string",
+      "required": false,
+      "enum": ["youtube", "x_post", "original"],
+      "description": "Origin of the content",
+      "values": {
+        "youtube": "Article derived from YouTube content",
+        "x_post": "Article derived from X/Twitter post",
+        "original": "Original written content"
+      }
+    },
+    "source_url": {
+      "type": "string",
+      "required": false,
+      "max_length": 1000,
+      "description": "Link to source material (YouTube video, X post, etc.)"
+    },
+    "published": {
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Whether the article should be visible on the site"
+    },
+    "featured": {
+      "type": "boolean",
+      "required": false,
+      "default": false,
+      "description": "Whether to highlight this article (shows in featured sections)"
+    },
+    "created_at": {
+      "type": "string",
+      "required": false,
+      "format": "ISO 8601 timestamp",
+      "description": "Publication date/time. Auto-generated if omitted.",
+      "example": "2026-01-03T00:00:00Z"
+    }
+  },
+
+  "example_article": {
+    "title": "Investigating Local Communities: A Reporter's Journey",
+    "slug": "investigating-local-communities",
+    "excerpt": "An inside look at the process of documenting stories that matter in communities across America.",
+    "content": "Every community has a story, and every story has a voice waiting to be heard. As an independent journalist, I've made it my mission to find and amplify those voices.\n\n## The Approach\n\nInvestigative journalism isn't just about uncovering scandals—it's about understanding the human experience behind the headlines. When I arrive in a new community, I start by listening.\n\n## Building Trust\n\nTrust is earned, not given. I spend time getting to know community members before pulling out a camera or notebook. This approach leads to more authentic storytelling.\n\n## The Stories We Tell\n\nFrom small towns to major cities, each location offers unique perspectives on the issues affecting our nation:\n\n* Economic challenges\n* Political divides\n* Cultural shifts\n* Environmental concerns\n\n## What's Next\n\nI'll continue traveling and reporting on the stories that matter. Follow along on my YouTube channel and X for real-time updates.",
+    "featured_image": "/public/investigative-reporting.jpg",
+    "category": "investigation",
+    "source_type": "original",
+    "source_url": null,
+    "published": true,
+    "featured": true,
+    "created_at": "2026-01-03T12:00:00Z"
+  },
+
+  "markdown_tips": {
+    "headings": {
+      "h1": "# Heading 1",
+      "h2": "## Heading 2",
+      "h3": "### Heading 3"
+    },
+    "text_formatting": {
+      "bold": "**bold text**",
+      "italic": "*italic text*",
+      "strikethrough": "~~strikethrough~~"
+    },
+    "lists": {
+      "unordered": "- Item 1\n- Item 2",
+      "ordered": "1. First item\n2. Second item"
+    },
+    "links": {
+      "syntax": "[Link text](https://example.com)"
+    },
+    "images": {
+      "syntax": "![Alt text](/path/to/image.jpg)"
+    },
+    "blockquotes": {
+      "syntax": "> Quoted text"
+    },
+    "code": {
+      "inline": "`inline code`",
+      "block": "```\ncode block\n```"
+    }
+  },
+
+  "usage": {
+    "import": {
+      "description": "Use the API endpoint to import articles from this JSON file",
+      "endpoint": "/api/admin/articles/import",
+      "method": "POST"
+    },
+    "seed": {
+      "description": "Add articles to seed.json for database seeding",
+      "location": "scripts/seed.json"
+    },
+    "validation": {
+      "note": "Slugs must be unique. Duplicate slugs will cause import errors."
+    }
+  }
+}
