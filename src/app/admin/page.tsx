@@ -49,6 +49,7 @@ export default function AdminPage() {
   const [exporting, setExporting] = useState(false);
   const [purging, setPurging] = useState(false);
   const [importFileName, setImportFileName] = useState<string>('');
+  const [replaceMode, setReplaceMode] = useState(false);
 
   // Article management state
   const [articles, setArticles] = useState<Article[]>([]);
@@ -208,7 +209,7 @@ export default function AdminPage() {
 
     try {
       const text = await file.text();
-      const res = await authFetch('/api/admin/articles/import', {
+      const res = await authFetch(`/api/admin/articles/import${replaceMode ? '?replace=true' : ''}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: text,
@@ -575,6 +576,20 @@ export default function AdminPage() {
                     <div className="border border-gray-200 p-4">
                       <h3 className="font-bold text-sm mb-1">Import</h3>
                       <p className="text-xs text-gray-500 font-sans mb-3">Upload a JSON file with an array of articles.</p>
+                      
+                      <div className="mb-3 flex items-center">
+                        <input
+                          type="checkbox"
+                          id="replace-mode"
+                          checked={replaceMode}
+                          onChange={(e) => setReplaceMode(e.target.checked)}
+                          className="mr-2 h-4 w-4 border-gray-300 text-black focus:ring-black"
+                        />
+                        <label htmlFor="replace-mode" className="text-xs font-sans text-gray-700">
+                          Replace all existing articles
+                        </label>
+                      </div>
+
                       <input
                         ref={fileInputRef}
                         type="file"

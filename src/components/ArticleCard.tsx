@@ -36,9 +36,9 @@ export default function ArticleCard({
     return (
       <article className="article-card group mb-12">
         <Link href={`/articles/${slug}`}>
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
             {featuredImage && (
-              <div className="md:col-span-8 relative aspect-[16/9] overflow-hidden bg-gray-100">
+              <div className="md:col-span-7 relative aspect-[16/9] overflow-hidden bg-gray-100">
                 <Image
                   src={featuredImage}
                   alt={title}
@@ -47,8 +47,11 @@ export default function ArticleCard({
                 />
               </div>
             )}
-            <div className={`flex flex-col justify-center ${featuredImage ? 'md:col-span-4' : 'md:col-span-12'}`}>
+            <div className={`flex flex-col justify-center ${featuredImage ? 'md:col-span-5' : 'md:col-span-12'}`}>
               <div className="flex items-center gap-3 mb-4">
+                <span className="inline-block px-2 py-1 bg-red-600 text-white text-xs font-bold uppercase tracking-wider">
+                  Featured
+                </span>
                 <span className="font-sans text-sm font-bold uppercase tracking-wider text-gray-500">
                   {getCategoryLabel()}
                 </span>
@@ -57,11 +60,11 @@ export default function ArticleCard({
                   {formattedDate}
                 </time>
               </div>
-              <h2 className="text-2xl md:text-3xl font-bold mb-6 group-hover:underline leading-tight font-headline">
+              <h2 className="text-3xl md:text-5xl font-bold mb-6 group-hover:underline leading-none font-headline tracking-tight">
                 {title}
               </h2>
               {excerpt && (
-                <p className="text-gray-600 text-base md:text-lg leading-relaxed font-serif">
+                <p className="text-gray-700 text-lg md:text-xl leading-relaxed font-serif border-l-4 border-black pl-4">
                   {excerpt}
                 </p>
               )}

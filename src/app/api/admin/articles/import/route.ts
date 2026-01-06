@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { upsertArticle } from '@/lib/db';
+import { upsertArticle, deleteAllArticles } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,6 +38,15 @@ export async function POST(request: Request) {
         { success: false, error: 'Expected an array of articles', processed: 0, skipped: 0, errors: ['Invalid shape'] },
         { status: 400 }
       );
+    }
+
+    // Check for replace flag
+    const url = new URL(request.url);
+    const shouldReplace = url.searchParams.get('replace') === 'true';
+
+    if (shouldReplace) {
+      console.log('Admin: Replacing all articles before import');
+      await deleteAllArticles();
     }
 
     let processed = 0;
