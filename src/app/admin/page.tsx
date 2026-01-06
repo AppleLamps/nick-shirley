@@ -49,7 +49,7 @@ export default function AdminPage() {
   const [exporting, setExporting] = useState(false);
   const [purging, setPurging] = useState(false);
   const [importFileName, setImportFileName] = useState<string>('');
-  const [replaceMode, setReplaceMode] = useState(false);
+  const [importErrors, setImportErrors] = useState<string[]>([]);
 
   // Article management state
   const [articles, setArticles] = useState<Article[]>([]);
@@ -205,6 +205,7 @@ export default function AdminPage() {
     setImporting(true);
     setArticleMessage('');
     setArticleMessageTone('neutral');
+    setImportErrors([]);
     setImportFileName(file.name);
 
     try {
@@ -222,6 +223,9 @@ export default function AdminPage() {
 
       setArticleMessage(`Imported ${data.processed} articles${data.skipped ? `, skipped ${data.skipped}` : ''}.`);
       setArticleMessageTone(data.skipped ? 'neutral' : 'success');
+      if (data.errors && data.errors.length > 0) {
+        setImportErrors(data.errors);
+      }
       fetchArticles(); // Refresh article list
     } catch (error: unknown) {
       setArticleMessage(error instanceof Error ? error.message : 'Import failed');
@@ -629,14 +633,30 @@ export default function AdminPage() {
                 )}
 
                 {articleMessage && (
-                  <p className={`mt-4 text-sm font-sans ${articleMessageTone === 'success'
+                  <div className={`mt-4 text-sm font-sans ${articleMessageTone === 'success'
                     ? 'text-green-700'
                     : articleMessageTone === 'error'
                       ? 'text-red-600'
                       : 'text-gray-600'
                     }`}>
-                    {articleMessage}
-                  </p>
+                    <p>{articleMessage}</p>
+                    
+                    {/* Show errors if any */}
+                    {articleMessageTone === 'neutral' && articleMessage.includes('skipped') && (
+                      <div className="mt-2 p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded">
+                         <p className="font-bold mb-1">Errors:</p>
+                         {importErrors.length > 0 ? (
+                           <ul className="list-disc pl-4 space-y-1">
+                             {importErrors.map((err, i) => (
+                               <li key={i}>{err}</li>
+                             ))}
+                           </ul>
+                         ) : (
+                           <p className="italic">Check console for details.</p>
+                         )}
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             </div>

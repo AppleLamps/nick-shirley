@@ -56,7 +56,7 @@ export default function ArticleCard({
                   {getCategoryLabel()}
                 </span>
                 <span className="text-gray-300">|</span>
-                <time className="font-sans text-sm text-gray-500">
+                <time className="font-sans text-sm text-gray-500" suppressHydrationWarning>
                   {formattedDate}
                 </time>
               </div>
@@ -85,7 +85,7 @@ export default function ArticleCard({
                 {getCategoryLabel()}
               </span>
               <span className="text-gray-300">|</span>
-              <time className="font-sans text-xs text-gray-500">
+              <time className="font-sans text-xs text-gray-500" suppressHydrationWarning>
                 {formattedDate}
               </time>
             </div>
