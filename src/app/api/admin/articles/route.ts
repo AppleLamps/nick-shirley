@@ -41,6 +41,7 @@ export async function POST(request: Request) {
       content: body.content,
       featured_image: body.featured_image || null,
       category: body.category || 'update',
+      author: body.author || 'Nick Shirley',
       source_type: body.source_type || null,
       source_url: body.source_url || null,
       published: body.published ?? false,

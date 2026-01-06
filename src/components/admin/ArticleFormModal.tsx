@@ -55,6 +55,7 @@ export default function ArticleFormModal({
     content: '',
     featured_image: '',
     category: 'update',
+    author: 'Nick Shirley',
     source_type: '',
     source_url: '',
     published: false,
@@ -73,6 +74,7 @@ export default function ArticleFormModal({
           content: article.content || '',
           featured_image: article.featured_image || '',
           category: article.category || 'update',
+          author: article.author || 'Nick Shirley',
           source_type: article.source_type || '',
           source_url: article.source_url || '',
           published: article.published ?? false,
@@ -87,6 +89,7 @@ export default function ArticleFormModal({
           content: '',
           featured_image: '',
           category: 'update',
+          author: 'Nick Shirley',
           source_type: '',
           source_url: '',
           published: false,
@@ -117,6 +120,7 @@ export default function ArticleFormModal({
       ...formData,
       excerpt: formData.excerpt || null,
       featured_image: formData.featured_image || null,
+      author: formData.author || null,
       source_type: formData.source_type || null,
       source_url: formData.source_url || null,
     });
@@ -218,6 +222,18 @@ export default function ArticleFormModal({
                 onChange={(e) => setFormData((prev) => ({ ...prev, featured_image: e.target.value }))}
                 className="w-full px-3 py-2 border border-gray-300 font-sans text-sm focus:outline-none focus:border-black"
                 placeholder="https://example.com/image.jpg"
+              />
+            </div>
+
+            {/* Author */}
+            <div>
+              <label className="block text-sm font-bold mb-1">Author</label>
+              <input
+                type="text"
+                value={formData.author}
+                onChange={(e) => setFormData((prev) => ({ ...prev, author: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 font-sans text-sm focus:outline-none focus:border-black"
+                placeholder="Nick Shirley"
               />
             </div>
 

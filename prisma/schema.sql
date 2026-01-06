@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS articles (
     content TEXT NOT NULL,
     featured_image VARCHAR(1000),
     category VARCHAR(100) DEFAULT 'update',
+    author VARCHAR(100),
     source_type VARCHAR(50), -- 'youtube', 'x_post', 'original'
     source_url VARCHAR(1000),
     published BOOLEAN DEFAULT false,

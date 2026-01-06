@@ -27,7 +27,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { title, slug, excerpt, content, featuredImage, category, sourceType, sourceUrl, published, featured } = body;
+    const { title, slug, excerpt, content, featuredImage, category, author, sourceType, sourceUrl, published, featured } = body;
 
     if (!title || !slug || !content) {
       return NextResponse.json(
@@ -37,8 +37,8 @@ export async function POST(request: Request) {
     }
 
     const result = await sql`
-      INSERT INTO articles (title, slug, excerpt, content, featured_image, category, source_type, source_url, published, featured)
-      VALUES (${title}, ${slug}, ${excerpt || null}, ${content}, ${featuredImage || null}, ${category || 'update'}, ${sourceType || null}, ${sourceUrl || null}, ${published || false}, ${featured || false})
+      INSERT INTO articles (title, slug, excerpt, content, featured_image, category, author, source_type, source_url, published, featured)
+      VALUES (${title}, ${slug}, ${excerpt || null}, ${content}, ${featuredImage || null}, ${category || 'update'}, ${author || null}, ${sourceType || null}, ${sourceUrl || null}, ${published || false}, ${featured || false})
       RETURNING *
     `;
 

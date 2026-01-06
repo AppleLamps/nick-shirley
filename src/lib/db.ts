@@ -13,6 +13,7 @@ export interface Article {
   content: string;
   featured_image: string | null;
   category: string;
+  author: string | null;
   source_type: string | null;
   source_url: string | null;
   published: boolean;
@@ -139,7 +140,7 @@ export async function upsertArticle(article: Partial<Article> & { slug: string; 
   const updatedAt = article.updated_at ? new Date(article.updated_at) : new Date();
 
   await sql`
-    INSERT INTO articles (title, slug, excerpt, content, featured_image, category, source_type, source_url, published, featured, created_at, updated_at)
+    INSERT INTO articles (title, slug, excerpt, content, featured_image, category, author, source_type, source_url, published, featured, created_at, updated_at)
     VALUES (
       ${article.title},
       ${article.slug},
@@ -147,6 +148,7 @@ export async function upsertArticle(article: Partial<Article> & { slug: string; 
       ${article.content},
       ${article.featured_image || null},
       ${article.category || 'update'},
+      ${article.author || null},
       ${article.source_type || null},
       ${article.source_url || null},
       ${article.published ?? false},
@@ -161,6 +163,7 @@ export async function upsertArticle(article: Partial<Article> & { slug: string; 
       content = EXCLUDED.content,
       featured_image = EXCLUDED.featured_image,
       category = EXCLUDED.category,
+      author = EXCLUDED.author,
       source_type = EXCLUDED.source_type,
       source_url = EXCLUDED.source_url,
       published = EXCLUDED.published,
@@ -195,7 +198,7 @@ export async function createArticle(
   article: Omit<Article, 'id' | 'created_at' | 'updated_at'>
 ): Promise<Article> {
   const result = await sql`
-    INSERT INTO articles (title, slug, excerpt, content, featured_image, category, source_type, source_url, published, featured, created_at, updated_at)
+    INSERT INTO articles (title, slug, excerpt, content, featured_image, category, author, source_type, source_url, published, featured, created_at, updated_at)
     VALUES (
       ${article.title},
       ${article.slug},
@@ -203,6 +206,7 @@ export async function createArticle(
       ${article.content},
       ${article.featured_image || null},
       ${article.category || 'update'},
+      ${article.author || null},
       ${article.source_type || null},
       ${article.source_url || null},
       ${article.published ?? false},
@@ -227,6 +231,7 @@ export async function updateArticleById(
       content = COALESCE(${article.content ?? null}, content),
       featured_image = ${article.featured_image ?? null},
       category = COALESCE(${article.category ?? null}, category),
+      author = ${article.author ?? null},
       source_type = ${article.source_type ?? null},
       source_url = ${article.source_url ?? null},
       published = COALESCE(${article.published ?? null}, published),

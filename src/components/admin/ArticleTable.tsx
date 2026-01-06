@@ -51,6 +51,7 @@ export default function ArticleTable({
         <thead>
           <tr className="border-b border-gray-200 bg-gray-50">
             <th className="text-left px-4 py-3 font-bold font-sans">Title</th>
+            <th className="text-left px-4 py-3 font-bold font-sans w-32">Author</th>
             <th className="text-left px-4 py-3 font-bold font-sans w-24">Category</th>
             <th className="text-left px-4 py-3 font-bold font-sans w-24">Status</th>
             <th className="text-left px-4 py-3 font-bold font-sans w-28">Created</th>
@@ -66,6 +67,9 @@ export default function ArticleTable({
               <td className="px-4 py-3">
                 <div className="font-medium">{truncate(article.title, 50)}</div>
                 <div className="text-xs text-gray-500 font-sans">/{article.slug}</div>
+              </td>
+              <td className="px-4 py-3 text-sm font-sans text-gray-700">
+                {article.author || '-'}
               </td>
               <td className="px-4 py-3">
                 <span className="inline-block px-2 py-0.5 text-xs font-sans bg-gray-100 rounded">

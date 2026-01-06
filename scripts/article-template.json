@@ -10,6 +10,7 @@
     "content": "Your main article content here. Supports Markdown formatting.\n\n## Heading\n\n**Bold text** and *italic text* are supported.\n\n- List item 1\n- List item 2\n\n> Blockquotes\n\n[Link text](url)",
     "featured_image": null,
     "category": "update",
+    "author": "Apple Lamps",
     "source_type": "original",
     "source_url": null,
     "published": false,
@@ -56,6 +57,13 @@
       "description": "Article category for organization",
       "examples": ["update", "video", "analysis", "investigation", "news", "transcript"]
     },
+    "author": {
+      "type": "string",
+      "required": false,
+      "max_length": 100,
+      "description": "Name of the article author",
+      "default": "Apple Lamps"
+    },
     "source_type": {
       "type": "string",
       "required": false,
@@ -101,6 +109,7 @@
     "content": "Every community has a story, and every story has a voice waiting to be heard. As an independent journalist, I've made it my mission to find and amplify those voices.\n\n## The Approach\n\nInvestigative journalism isn't just about uncovering scandals—it's about understanding the human experience behind the headlines. When I arrive in a new community, I start by listening.\n\n## Building Trust\n\nTrust is earned, not given. I spend time getting to know community members before pulling out a camera or notebook. This approach leads to more authentic storytelling.\n\n## The Stories We Tell\n\nFrom small towns to major cities, each location offers unique perspectives on the issues affecting our nation:\n\n* Economic challenges\n* Political divides\n* Cultural shifts\n* Environmental concerns\n\n## What's Next\n\nI'll continue traveling and reporting on the stories that matter. Follow along on my YouTube channel and X for real-time updates.",
     "featured_image": "/public/investigative-reporting.jpg",
     "category": "investigation",
+    "author": "Apple Lamps",
     "source_type": "original",
     "source_url": null,
     "published": true,

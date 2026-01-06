@@ -67,6 +67,7 @@ export async function POST(request: Request) {
           content,
           featured_image: typeof record.featured_image === 'string' ? record.featured_image : null,
           category: typeof record.category === 'string' ? record.category : 'update',
+          author: typeof record.author === 'string' ? record.author : 'Nick Shirley',
           source_type: typeof record.source_type === 'string' ? record.source_type : null,
           source_url: typeof record.source_url === 'string' ? record.source_url : null,
           published: typeof record.published === 'boolean' ? record.published : false,

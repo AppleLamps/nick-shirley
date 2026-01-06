@@ -66,6 +66,7 @@ export async function PUT(
       content: body.content,
       featured_image: body.featured_image,
       category: body.category,
+      author: body.author,
       source_type: body.source_type,
       source_url: body.source_url,
       published: body.published,
