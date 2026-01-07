@@ -99,7 +99,7 @@ export default function AdminPage() {
     } finally {
       setArticlesLoading(false);
     }
-  }, []);
+  }, [authFetch]);
 
   useEffect(() => {
     if (isUnlocked) {
