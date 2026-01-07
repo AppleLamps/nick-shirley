@@ -50,6 +50,7 @@ export default function AdminPage() {
   const [purging, setPurging] = useState(false);
   const [importFileName, setImportFileName] = useState<string>('');
   const [importErrors, setImportErrors] = useState<string[]>([]);
+  const [replaceMode, setReplaceMode] = useState(false);
 
   // Article management state
   const [articles, setArticles] = useState<Article[]>([]);
@@ -580,7 +581,7 @@ export default function AdminPage() {
                     <div className="border border-gray-200 p-4">
                       <h3 className="font-bold text-sm mb-1">Import</h3>
                       <p className="text-xs text-gray-500 font-sans mb-3">Upload a JSON file with an array of articles.</p>
-                      
+
                       <div className="mb-3 flex items-center">
                         <input
                           type="checkbox"
@@ -640,20 +641,20 @@ export default function AdminPage() {
                       : 'text-gray-600'
                     }`}>
                     <p>{articleMessage}</p>
-                    
+
                     {/* Show errors if any */}
                     {articleMessageTone === 'neutral' && articleMessage.includes('skipped') && (
                       <div className="mt-2 p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded">
-                         <p className="font-bold mb-1">Errors:</p>
-                         {importErrors.length > 0 ? (
-                           <ul className="list-disc pl-4 space-y-1">
-                             {importErrors.map((err, i) => (
-                               <li key={i}>{err}</li>
-                             ))}
-                           </ul>
-                         ) : (
-                           <p className="italic">Check console for details.</p>
-                         )}
+                        <p className="font-bold mb-1">Errors:</p>
+                        {importErrors.length > 0 ? (
+                          <ul className="list-disc pl-4 space-y-1">
+                            {importErrors.map((err, i) => (
+                              <li key={i}>{err}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="italic">Check console for details.</p>
+                        )}
                       </div>
                     )}
                   </div>
